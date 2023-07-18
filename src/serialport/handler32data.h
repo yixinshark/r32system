@@ -9,11 +9,12 @@
 
 #include <QMap>
 
+class SerialPortCom;
 class Handler32data : public HandleDataBase
 {
     Q_OBJECT
 public:
-    explicit Handler32data(QObject *parent = nullptr);
+    explicit Handler32data(SerialPortCom *serialPortCom, QObject *parent = nullptr);
     ~Handler32data() override;
 
     void setSlaveAddress(char slaveAddress);

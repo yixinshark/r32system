@@ -3,13 +3,11 @@
 //
 
 #include "operatewidget.h"
-#include "r32analyticalwidget.h"
-#include "mcuoperatewidget.h"
-#include "operater32widget.h"
 
 #include "handler32data.h"
 #include "handlemcudata.h"
 #include "handleanalyserdata.h"
+#include "connectwidget.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -25,22 +23,17 @@
 
 OperateWidget::OperateWidget(QWidget *parent)
     : QWidget(parent)
+    , m_r32ConnectWidget(new ConnectWidget("R32传感器", this))
+    , m_r32AnaConnectWidget(new ConnectWidget("分析仪", this))
+    , m_mcuConnectWidget(new ConnectWidget("单片机", this))
     , m_tableWidget(new QTableWidget(this))
-    , m_msgLabel(new QLabel(this))
+    //, m_msgLabel(new QLabel(this))
 {
-    auto *handlerMcuData = new HandleMcuData(this);
-    auto *handler32Data = new Handler32data(this);
-    auto *handlerAnalyserData = new HandleAnalyserData(this);
-
-    m_operateR32Widget = new OperateR32Widget(handler32Data,"R32传感器", this);
-    m_r32AnalyticalWidget = new R32AnalyticalWidget(handlerAnalyserData, "分析仪", this);
-    m_mcuOperateWidget = new McuOperateWidget(handlerMcuData, "单片机", this);
-
     initUI();
 
-    connect(m_operateR32Widget, &OperateR32Widget::operatedMsg, this, &OperateWidget::showMsg);
-    connect(m_r32AnalyticalWidget, &R32AnalyticalWidget::operatedMsg, this, &OperateWidget::showMsg);
-    connect(m_mcuOperateWidget, &McuOperateWidget::operatedMsg, this, &OperateWidget::showMsg);
+    connect(m_r32ConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
+    connect(m_r32AnaConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
+    connect(m_mcuConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
 }
 
 OperateWidget::~OperateWidget()
@@ -124,18 +117,18 @@ void OperateWidget::initUI()
 
     auto *hLayout2 = new QHBoxLayout();
     hLayout2->setSpacing(20);
-    hLayout2->addWidget(m_r32AnalyticalWidget);
-    hLayout2->addWidget(m_operateR32Widget);
-    hLayout2->addWidget(m_mcuOperateWidget);
+    hLayout2->addWidget(m_r32AnaConnectWidget);
+    hLayout2->addWidget(m_r32ConnectWidget);
+    hLayout2->addWidget(m_mcuConnectWidget);
 
     // 多行显示操作内容提示
     auto *optMsgLabel = new QTextEdit(this);
     optMsgLabel->setReadOnly(true);
-    optMsgLabel->setMaximumHeight(100);
+    optMsgLabel->setMaximumHeight(80);
 
     auto *vLayout = new QVBoxLayout();
-    vLayout->setSpacing(15);
-    vLayout->setContentsMargins(10, 20, 10, 10);
+    vLayout->setSpacing(5);
+    vLayout->setContentsMargins(10, 20, 10, 5);
     vLayout->addWidget(groupBox1);
     vLayout->addWidget(groupBox2);
     vLayout->addLayout(hLayout2);
@@ -156,10 +149,10 @@ void OperateWidget::initUI()
     auto *groupBox3 = new QGroupBox(tr("报表"), this);
     m_tableWidget->setColumnCount(10);
     m_tableWidget->setRowCount(10);
-    m_tableWidget->setMinimumHeight(300);
+    m_tableWidget->setMinimumHeight(400);
 
     auto *vBoxLayout = new QVBoxLayout();
-    vBoxLayout->setContentsMargins(10, 25, 10, 0);
+    vBoxLayout->setContentsMargins(10, 20, 10, 10);
     vBoxLayout->addWidget(m_tableWidget);
     groupBox3->setLayout(vBoxLayout);
 
@@ -169,12 +162,14 @@ void OperateWidget::initUI()
     mainLayout->addWidget(groupBox);
     mainLayout->addLayout(btnLayout);
     mainLayout->addWidget(groupBox3);
-    mainLayout->addWidget(m_msgLabel);
+    //mainLayout->addWidget(m_msgLabel);
     setLayout(mainLayout);
 }
 
 void OperateWidget::showMsg(const QString &msg)
 {
+#if 0
     m_msgLabel->clear();
     m_msgLabel->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + msg);
+#endif
 }

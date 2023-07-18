@@ -7,12 +7,13 @@
 
 #include <QObject>
 
+class SerialPortCom;
 class HandleDataBase : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit HandleDataBase(QObject *parent = nullptr);
+    explicit HandleDataBase(SerialPortCom *serialPortCom, QObject *parent = nullptr);
     ~HandleDataBase() override;
 
 signals:
@@ -20,6 +21,9 @@ signals:
     void recvedFrameData(const QByteArray &frameData);
 
 public:
+    QString senderName() const { return m_senderName; }
+    void setSenderName(const QString &senderName) { m_senderName = senderName; }
+    void sendCmdData(const QByteArray &data);
     virtual QByteArray getSendData(char cmd, const QVariantMap &info);
     virtual void processReceivedData(const QByteArray &data) = 0;
 
@@ -32,7 +36,9 @@ protected:
     virtual bool frameIsValid(const QByteArray &frameData) = 0;
 
 protected:
+    QString m_senderName;
     QByteArray m_receivedData;
+    SerialPortCom *m_serialPortCom;
 };
 
 #endif //R32_HANDLEDATABASE_H

@@ -7,12 +7,10 @@
 
 #include <QWidget>
 
-class OperateR32Widget;
-class R32AnalyticalWidget;
-class McuOperateWidget;
+
 class QLabel;
 class QTableWidget;
-
+class ConnectWidget;
 class OperateWidget : public QWidget
 {
     Q_OBJECT
@@ -25,12 +23,15 @@ private:
     void showMsg(const QString &msg);
 
 private:
-    OperateR32Widget *m_operateR32Widget;
-    R32AnalyticalWidget *m_r32AnalyticalWidget;
-    McuOperateWidget *m_mcuOperateWidget;
+    // r32传感器串口连接
+    ConnectWidget *m_r32ConnectWidget;
+    // r32分析仪串口连接
+    ConnectWidget *m_r32AnaConnectWidget;
+    // mcu串口连接
+    ConnectWidget *m_mcuConnectWidget;
 
     QTableWidget *m_tableWidget;
-    QLabel *m_msgLabel;
+    //QLabel *m_msgLabel;
 };
 
 #endif //R32_OPERATEWIDGET_H

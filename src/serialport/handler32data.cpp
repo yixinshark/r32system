@@ -8,8 +8,8 @@
 #include <QDebug>
 #include <QByteArray>
 
-Handler32data::Handler32data(QObject *parent)
-    : HandleDataBase(parent)
+Handler32data::Handler32data(SerialPortCom *serialPortCom, QObject *parent)
+    : HandleDataBase(serialPortCom, parent)
 {
     m_readFuncMap = {
             {CMD_01, &Handler32data::readOperateResult},

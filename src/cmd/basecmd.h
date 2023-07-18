@@ -11,30 +11,22 @@ class HandleDataBase;
 class BaseCmd
 {
 public:
-    BaseCmd();
-    virtual ~BaseCmd();
+    BaseCmd() { }
+    virtual ~BaseCmd() { }
+
+    enum CmdType {
+        CMD_TYPE_SINGLE,         // 单个指令
+        CMD_TYPE_MULTI           // 多个指令
+    };
 
 public:
-//    int waitSecs = 0 ; // 等待时间
-//    int cmdCode;       // 命令码
-
-//    enum SenderType {
-//        SENDER_NONE = 0,         // 无
-//        SENDER_R32,              // R32
-//        SENDER_R32_ANALYSER,     // R32分析仪
-//        SENDER_MCU               // MCU单片机
-//    };
-//
-//    enum CmdType {
-//        CMD_TYPE_SINGLE,         // 单个指令
-//        CMD_TYPE_MULTI           // 多个指令
-//    };
-
-public:
+    void setCmdType(CmdType type) { m_cmdType = type; }
     // 初始化命令
-    void initCmd() = 0;
+    virtual void initCmd() = 0;
     // 等待时间之后执行命令
-    int waitSecs() = 0;
+    virtual int waitSecs() = 0;
+    // 设置发送数据
+    virtual void setSendData(const QByteArray &data) { };
     // 命令信息
     virtual QString cmdInfo() = 0;
     // 执行命令
@@ -43,22 +35,15 @@ public:
     virtual bool exeOvered() = 0;
     // 命令是否执行成功
     virtual bool exeSuccess() = 0;
+    // 命令执行超时
+    virtual void recvAckTimeout() = 0;
     // 命令执行错误信息
     virtual QString exeErrInfo() = 0;
-    void setExeErrInfo(const QString &errInfo) { m_errInfo = errInfo; }
     // 接收命令回执
-    virtual void recvCmdAckData(int senderType, quint8 cmd) = 0;
-    // 命令发送者(发送者类型)
-    void setSender(HandleDataBase *sender) { m_sender = sender; }
+    virtual void recvCmdAckData(quint8 cmdCode) = 0;
 
 protected:
-//    CmdType m_cmdType;
-    HandleDataBase *m_sender;
-    QString m_errInfo;
-
-//protected:
-//    // 命令发送者
-//    QMap<SenderType, HandleDataBase *> m_cmdSenderMap;
+    CmdType m_cmdType;
 };
 
 #endif //R32SYSTEM_BASECMD_H

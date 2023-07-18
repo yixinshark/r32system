@@ -7,8 +7,8 @@
 
 #include <QDebug>
 
-HandleMcuData::HandleMcuData(QObject *parent)
-    : HandleDataBase(parent)
+HandleMcuData::HandleMcuData(SerialPortCom *serialPortCom, QObject *parent)
+    : HandleDataBase(serialPortCom, parent)
 {
 }
 

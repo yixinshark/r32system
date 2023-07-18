@@ -8,8 +8,8 @@
 #include <QDebug>
 #include <QVariantMap>
 
-HandleAnalyserData::HandleAnalyserData(QObject *parent)
-    : HandleDataBase(parent)
+HandleAnalyserData::HandleAnalyserData(SerialPortCom *serialPortCom, QObject *parent)
+    : HandleDataBase(serialPortCom, parent)
 {
 
 }

@@ -3,9 +3,11 @@
 //
 
 #include "handledatabase.h"
+#include "serialportcom.h"
 
-HandleDataBase::HandleDataBase(QObject *parent)
+HandleDataBase::HandleDataBase(SerialPortCom *serialPortCom, QObject *parent)
     : QObject(parent)
+    , m_serialPortCom(serialPortCom)
 {
 }
 
@@ -29,4 +31,12 @@ void HandleDataBase::addCheckSum(QByteArray &data)
 
     data.append(static_cast<char>((checksum >> 8) & 0xFF));
     data.append(static_cast<char>(checksum & 0xFF));
+}
+
+void HandleDataBase::sendCmdData(const QByteArray &data)
+{
+    if (!m_serialPortCom)
+        return;
+
+    m_serialPortCom->sendData(data);
 }

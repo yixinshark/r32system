@@ -7,6 +7,7 @@
 
 #include "handledatabase.h"
 
+class SerialPortCom;
 /*!
  * @brief R32分析仪器数据
  */
@@ -14,7 +15,7 @@ class HandleAnalyserData : public HandleDataBase
 {
     Q_OBJECT
 public:
-    explicit HandleAnalyserData(QObject *parent = nullptr);
+    explicit HandleAnalyserData(SerialPortCom *serialPortCom, QObject *parent = nullptr);
     ~HandleAnalyserData() override;
 
 public:

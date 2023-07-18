@@ -8,12 +8,12 @@
 #include "handledatabase.h"
 
 #include <QMap>
-
+class SerialPortCom;
 class HandleMcuData : public HandleDataBase
 {
     Q_OBJECT
 public:
-    explicit HandleMcuData(QObject *parent = nullptr);
+    explicit HandleMcuData(SerialPortCom *serialPortCom, QObject *parent = nullptr);
     ~HandleMcuData() override;
 
 public:
