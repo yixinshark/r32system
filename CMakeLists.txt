@@ -25,17 +25,20 @@ include_directories(${PROJECT_SOURCE_DIR}/src/dbutil)
 include_directories(${PROJECT_SOURCE_DIR}/src/serialport)
 include_directories(${PROJECT_SOURCE_DIR}/src/widget)
 include_directories(${PROJECT_SOURCE_DIR}/src/dbopt)
+include_directories(${PROJECT_SOURCE_DIR}/src/cmd)
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/dbutil DBUTILS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/serialport SERIALPORTS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/widget WIDGETS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/dbopt DBOPT)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/cmd CMD)
 
 set(R32_SRCS
         ${DBUTILS}
         ${SERIALPORTS}
         ${WIDGETS}
         ${DBOPT}
+        ${CMD}
         src/main.cpp
         )
 
