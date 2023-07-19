@@ -24,9 +24,9 @@ QString SingleCmd::cmdInfo()
 {
     QString info;
     if (m_sender)
-        info = QString("发送者:%1").arg(m_sender->senderName());
-    info += QString::number(m_cmdCode);
-    info += m_sendData.toHex();
+        info = QString("发送到:%1").arg(m_sender->senderName());
+    info += " 命令码:" + QString::number(m_cmdCode);
+    info += " 内容:" + m_sendData.toHex();
 
     return info;
 }
@@ -76,6 +76,5 @@ void SingleCmd::setSendData(const QByteArray &data)
 
 void SingleCmd::recvAckTimeout()
 {
-    m_errInfo = QString("命令执行超时");
-    m_sentCount++;
+    m_errInfo = QString("%1命令%2,执行超时").arg(m_sender->senderName()).arg(m_cmdCode);
 }

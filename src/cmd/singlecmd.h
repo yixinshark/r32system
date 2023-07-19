@@ -44,6 +44,7 @@ public:
 public:
     void setWaitSecs(int secs) { m_waitSecs = secs; }
     void setCmdCode(int code) { m_cmdCode = code; }
+    int cmdCode() { return m_cmdCode; }
 
 private:
     int m_waitSecs = 0 ;    // 等待时间,单位秒

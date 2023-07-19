@@ -11,6 +11,7 @@
 Handler32data::Handler32data(SerialPortCom *serialPortCom, QObject *parent)
     : HandleDataBase(serialPortCom, parent)
 {
+    m_senderName = "r32传感器";
     m_readFuncMap = {
             {CMD_01, &Handler32data::readOperateResult},
             {CMD_02, &Handler32data::readOperateResult},

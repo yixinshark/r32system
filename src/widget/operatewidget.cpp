@@ -8,6 +8,7 @@
 #include "handlemcudata.h"
 #include "handleanalyserdata.h"
 #include "connectwidget.h"
+#include "controlcmdflow.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -26,14 +27,37 @@ OperateWidget::OperateWidget(QWidget *parent)
     , m_r32ConnectWidget(new ConnectWidget("R32传感器", this))
     , m_r32AnaConnectWidget(new ConnectWidget("分析仪", this))
     , m_mcuConnectWidget(new ConnectWidget("单片机", this))
+    , m_startBtn(new QPushButton(tr("开始"), this))
+    , m_optMsgLabel(new QTextEdit(this))
     , m_tableWidget(new QTableWidget(this))
     //, m_msgLabel(new QLabel(this))
+    , m_controlCmdFlow(new ControlCmdFlow(this))
 {
+    // 初始化界面
     initUI();
+    // 单片机数据处理
+    auto *handlerMcuData = new HandleMcuData(m_mcuConnectWidget->serialPortCom(), this);
+    // r32数据处理
+    auto *handler32Data = new Handler32data(m_r32ConnectWidget->serialPortCom(), this);
+    // 分析仪数据处理
+    auto *handlerAnalyserData = new HandleAnalyserData(m_r32AnaConnectWidget->serialPortCom(), this);
+
+    // 设置数据发送、处理
+    m_controlCmdFlow->setMcuDataHandler(handlerMcuData);
+    m_controlCmdFlow->setR32DataHandler(handler32Data);
+    m_controlCmdFlow->setR32AnaDataHandler(handlerAnalyserData);
+    m_controlCmdFlow->initCmdFlow();
 
     connect(m_r32ConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
     connect(m_r32AnaConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
     connect(m_mcuConnectWidget, &ConnectWidget::operatedMsg, this, &OperateWidget::showMsg);
+
+    // 开始执行
+    connect(m_startBtn, &QPushButton::clicked,
+            m_controlCmdFlow, &ControlCmdFlow::start, Qt::QueuedConnection);
+    // 命令执行提示信息
+    connect(m_controlCmdFlow, &ControlCmdFlow::cmdexecuted,
+            this, &OperateWidget::showOperateMsg);
 }
 
 OperateWidget::~OperateWidget()
@@ -69,7 +93,18 @@ void OperateWidget::initUI()
     auto *toLineEdit = new QLineEdit(this);
     toLineEdit->setMaximumWidth(50);
     toLineEdit->setReadOnly(true);
-    toLineEdit->setText("64");
+    toLineEdit->setText("64"); // 默认值
+
+    connect(fromComboBox, &QComboBox::currentTextChanged, this, [fromComboBox, spinBox, toLineEdit]{
+        int from = fromComboBox->currentText().toInt();
+        int to = from + spinBox->value() - 1;
+        toLineEdit->setText(QString::number(to));
+    });
+    connect(spinBox, &QSpinBox::textChanged, this, [fromComboBox, spinBox, toLineEdit]{
+        int from = fromComboBox->currentText().toInt();
+        int to = from + spinBox->value() - 1;
+        toLineEdit->setText(QString::number(to));
+    });
 
     // TSI值；分析仪浓度数
     auto *tsiLabel = new QLabel(tr("TSI值："), this);
@@ -122,9 +157,8 @@ void OperateWidget::initUI()
     hLayout2->addWidget(m_mcuConnectWidget);
 
     // 多行显示操作内容提示
-    auto *optMsgLabel = new QTextEdit(this);
-    optMsgLabel->setReadOnly(true);
-    optMsgLabel->setMaximumHeight(80);
+    m_optMsgLabel->setReadOnly(true);
+    m_optMsgLabel->setMaximumHeight(80);
 
     auto *vLayout = new QVBoxLayout();
     vLayout->setSpacing(5);
@@ -132,31 +166,29 @@ void OperateWidget::initUI()
     vLayout->addWidget(groupBox1);
     vLayout->addWidget(groupBox2);
     vLayout->addLayout(hLayout2);
-    vLayout->addWidget(optMsgLabel);
+    vLayout->addWidget(m_optMsgLabel);
     groupBox->setLayout(vLayout);
 
     // 功能按钮：开始，数据保存，清空数据
-    auto *startBtn = new QPushButton(tr("开始"), this);
+    //auto *startBtn = new QPushButton(tr("开始"), this);
     auto *saveBtn = new QPushButton(tr("数据保存"), this);
     auto *clearBtn = new QPushButton(tr("清空数据"), this);
     auto *btnLayout = new QHBoxLayout();
     btnLayout->addStretch();
-    btnLayout->addWidget(startBtn);
+    btnLayout->addWidget(m_startBtn);
     btnLayout->addWidget(saveBtn);
     btnLayout->addWidget(clearBtn);
 
     // 报表groupbox
     auto *groupBox3 = new QGroupBox(tr("报表"), this);
-    m_tableWidget->setColumnCount(10);
-    m_tableWidget->setRowCount(10);
-    m_tableWidget->setMinimumHeight(400);
+    initTableWidget();
 
     auto *vBoxLayout = new QVBoxLayout();
     vBoxLayout->setContentsMargins(10, 20, 10, 10);
     vBoxLayout->addWidget(m_tableWidget);
     groupBox3->setLayout(vBoxLayout);
 
-    auto *mainLayout = new QVBoxLayout();;
+    auto *mainLayout = new QVBoxLayout();
     mainLayout->setSpacing(10);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(groupBox);
@@ -166,6 +198,19 @@ void OperateWidget::initUI()
     setLayout(mainLayout);
 }
 
+void OperateWidget::initTableWidget()
+{
+    m_tableWidget->setColumnCount(16);
+    m_tableWidget->setRowCount(10);
+    m_tableWidget->setMinimumHeight(400);
+
+    QStringList header;
+    header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1" << "标定点2" << "标定点3" << "标定状态"
+            << "标定的零点阻值R0" << "1000PPM的阻值" << "5000PPM的阻值" << "参数P" << "参数P1" << "参数P2" << "温度" << "湿度";
+
+    m_tableWidget->setHorizontalHeaderLabels(header);
+}
+
 void OperateWidget::showMsg(const QString &msg)
 {
 #if 0
@@ -173,3 +218,22 @@ void OperateWidget::showMsg(const QString &msg)
     m_msgLabel->setText(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + msg);
 #endif
 }
+
+void OperateWidget::showOperateMsg(const QString &msg)
+{
+    m_optMsgLabel->append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + msg);
+
+#if 0
+    if (m_msgList.count() == 3) {
+        m_msgList.removeFirst();
+    }
+
+    m_msgList.append(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + msg);
+    m_optMsgLabel->clear();
+    for (const auto &str : m_msgList) {
+        m_optMsgLabel->append(str);
+    }
+#endif
+}
+
+

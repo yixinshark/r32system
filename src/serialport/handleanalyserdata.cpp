@@ -11,7 +11,7 @@
 HandleAnalyserData::HandleAnalyserData(SerialPortCom *serialPortCom, QObject *parent)
     : HandleDataBase(serialPortCom, parent)
 {
-
+    m_senderName = "分析仪";
 }
 
 HandleAnalyserData::~HandleAnalyserData()

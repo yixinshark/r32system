@@ -5,9 +5,9 @@
 #ifndef R32SYSTEM_COMPOUNDCMD_H
 #define R32SYSTEM_COMPOUNDCMD_H
 
-#include "basecmd.h"
+#include "singlecmd.h"
 
-#include <QList>
+#include <QQueue>
 
 /*!
  * \brief 复合指令类, 由多个单一指令组成。所有单一指令执行完毕后，复合指令执行完毕
@@ -38,8 +38,21 @@ public:
     // 接收命令回执
     void recvCmdAckData(quint8 cmd) override;
 
+    // 执行多少轮回
+    void setLoopCount(int count) { m_loopCount = count; }
+    void setBeginLoopIndex(int index) { m_loopIndex = index; }
+    // 添加单一指令
+    void addCmd(SingleCmd *cmd) { m_cmdQueue.enqueue(cmd); }
+
 private:
-    QList<BaseCmd *> m_cmdList;
+    int m_loopCount = 1;    // 执行多少轮回
+    int m_loopIndex = 1;    // 当前执行第几轮回
+    bool m_overed = false;  // 命令是否执行完毕
+
+    QQueue<SingleCmd *> m_cmdQueue;
+    // 备份命令队列
+    QQueue<SingleCmd *> m_cmdQueueBak;
+    SingleCmd *m_curCmd = nullptr;
 };
 
 #endif //R32SYSTEM_COMPOUNDCMD_H
