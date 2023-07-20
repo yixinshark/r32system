@@ -25,6 +25,7 @@ public:
     ~ConnectWidget() override;
 
     SerialPortCom *serialPortCom() const { return m_serialPortCom; }
+    bool isConnected() const;
 
 signals:
     void operatedMsg(const QString &msg);

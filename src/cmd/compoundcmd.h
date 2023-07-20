@@ -5,7 +5,7 @@
 #ifndef R32SYSTEM_COMPOUNDCMD_H
 #define R32SYSTEM_COMPOUNDCMD_H
 
-#include "singlecmd.h"
+#include "basecmd.h"
 
 #include <QQueue>
 
@@ -42,17 +42,17 @@ public:
     void setLoopCount(int count) { m_loopCount = count; }
     void setBeginLoopIndex(int index) { m_loopIndex = index; }
     // 添加单一指令
-    void addCmd(SingleCmd *cmd) { m_cmdQueue.enqueue(cmd); }
+    void addCmd(BaseCmd *cmd) { m_cmdQueue.enqueue(cmd); }
 
 private:
     int m_loopCount = 1;    // 执行多少轮回
     int m_loopIndex = 1;    // 当前执行第几轮回
     bool m_overed = false;  // 命令是否执行完毕
 
-    QQueue<SingleCmd *> m_cmdQueue;
+    QQueue<BaseCmd *> m_cmdQueue;
     // 备份命令队列
-    QQueue<SingleCmd *> m_cmdQueueBak;
-    SingleCmd *m_curCmd = nullptr;
+    QQueue<BaseCmd *> m_cmdQueueBak;
+    BaseCmd *m_curCmd = nullptr;
 };
 
 #endif //R32SYSTEM_COMPOUNDCMD_H

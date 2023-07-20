@@ -11,7 +11,11 @@ CompoundCmd::CompoundCmd()
 
 CompoundCmd::~CompoundCmd()
 {
+    if (m_cmdQueue.isEmpty())
+        return;
 
+    for (auto *cmd : m_cmdQueue)
+        delete cmd;
 }
 
 void CompoundCmd::initCmd()
@@ -21,6 +25,13 @@ void CompoundCmd::initCmd()
 
 int CompoundCmd::waitSecs()
 {
+    if (m_curCmd)
+        return m_curCmd->waitSecs();
+
+    auto *cmd = m_cmdQueue.first();
+    if (cmd)
+        return cmd->waitSecs();
+
     return 0;
 }
 
@@ -34,6 +45,11 @@ QString CompoundCmd::cmdInfo()
 
 void CompoundCmd::execute()
 {
+    if (m_curCmd) {
+        m_curCmd->execute();
+        return;
+    }
+
     auto *cmd = m_cmdQueue.dequeue();
     if (cmd) {
         m_curCmd = cmd;

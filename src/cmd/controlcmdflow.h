@@ -24,15 +24,22 @@ signals:
 
 public:
     void start();
+    void stop();
     void recvAck(char cmd, const QVariantMap &info);
+
+    void setFromChannel(int channel) { m_fromChannel = channel; }
+    void setTotalChannel(int channel) { m_totalChannel = channel; }
+    void setCalibrationMode(bool mode) { m_calibrationMode = mode; }
+    void setDetectMode(bool mode) { m_detectMode = mode; }
 
 public:
     void setR32AnaDataHandler(HandleDataBase *handler);
     void setMcuDataHandler(HandleDataBase *handler);
     void setR32DataHandler(HandleDataBase *handler);
-    void initCmdFlow();
 
 private:
+    void initCalibrationCmdFlow();
+    void initDetectCmdFlow();
     void timerTimeout();
     void executeCmdFlow();
 
@@ -71,6 +78,14 @@ private:
 private:
     QTimer *m_timer;
     RecordData *m_recordData;
+
+    bool m_isStarted = false;
+    int m_fromChannel = 0;
+    int m_totalChannel = 0;
+    // 标定模式
+    bool m_calibrationMode = false;
+    // 检测模式
+    bool m_detectMode = false;
 
 private:
     // 标定命令控制流

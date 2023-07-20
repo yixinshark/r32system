@@ -12,6 +12,7 @@
 #include "timercmd.h"
 #include "conditioncmd.h"
 #include "analyserconstant.h"
+#include "channelcmd.h"
 
 #include <QDebug>
 #include <QVariantMap>
@@ -29,16 +30,45 @@ ControlCmdFlow::ControlCmdFlow(QObject *parent)
 
 ControlCmdFlow::~ControlCmdFlow()
 {
-
+    stop();
 }
 
 void ControlCmdFlow::start()
 {
-   executeCmdFlow();
+    m_isStarted = true;
+    if (m_calibrationMode) {
+        initCalibrationCmdFlow();
+    }
+
+    if (m_detectMode) {
+        initDetectCmdFlow();
+    }
+
+    executeCmdFlow();
+}
+
+void ControlCmdFlow::stop()
+{
+    m_isStarted = false;
+    if (m_timer->isActive())
+        m_timer->stop();
+
+    if (!m_calibrationCmdFlow.isEmpty()) {
+        for (auto *cmd : m_calibrationCmdFlow) {
+            delete cmd;
+        }
+
+        m_calibrationCmdFlow.clear();
+    }
 }
 
 void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 {
+    if (!m_isStarted) {
+        qWarning() << "ControlCmdFlow::recvAck is not started";
+        return;
+    }
+
     auto *currentCmd = m_calibrationCmdFlow.first();
     if (!currentCmd) {
         qWarning() << "currentCmd is null";
@@ -57,7 +87,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
     }
 }
 
-void ControlCmdFlow::initCmdFlow()
+void ControlCmdFlow::initCalibrationCmdFlow()
 {
     m_calibrationCmdFlow.append(initSwitchChannel(1));
     m_calibrationCmdFlow.append(initReadSensorAddress());
@@ -71,6 +101,14 @@ void ControlCmdFlow::initCmdFlow()
     m_calibrationCmdFlow.append(initGasPointCalibration(1, 5000));
     m_calibrationCmdFlow.append(initGasPointCalibration(2, 1000));
     m_calibrationCmdFlow.append(initGasPointCalibration(3, 0));
+}
+
+void ControlCmdFlow::initDetectCmdFlow()
+{
+    if (!m_calibrationCmdFlow.isEmpty())
+        m_calibrationCmdFlow.clear();
+
+    // TODO: 检测流程
 }
 
 void ControlCmdFlow::setR32AnaDataHandler(HandleDataBase *handler)
@@ -90,6 +128,11 @@ void ControlCmdFlow::setR32DataHandler(HandleDataBase *handler)
 
 void ControlCmdFlow::timerTimeout()
 {
+    if (!m_isStarted) {
+        qWarning() << "ControlCmdFlow::timerTimeout is not started";
+        return;
+    }
+
     qInfo() << Q_FUNC_INFO;
     auto *currentCmd = m_calibrationCmdFlow.first();
     if (!currentCmd) {
@@ -110,8 +153,8 @@ void ControlCmdFlow::timerTimeout()
 
         executeCmdFlow();
     } else {
-        Q_EMIT cmdexecuted(currentCmd->cmdInfo());
         currentCmd->execute();
+        Q_EMIT cmdexecuted(currentCmd->cmdInfo());
     }
 }
 
@@ -129,8 +172,8 @@ void ControlCmdFlow::executeCmdFlow()
         }
 
         if (cmd->waitSecs() == 0) {
-            Q_EMIT cmdexecuted(m_calibrationCmdFlow.first()->cmdInfo());
             cmd->execute();
+            Q_EMIT cmdexecuted(m_calibrationCmdFlow.first()->cmdInfo());
         }
 
         int waitSecs = cmd->waitSecs() ? cmd->waitSecs() * 1000 : 200;
@@ -290,20 +333,23 @@ BaseCmd *ControlCmdFlow::initCloseFan()
 BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
 {
     auto *cmd = new CompoundCmd();
-    cmd->setLoopCount(64); // TODO 循环次数使用用户设置
-    cmd->setBeginLoopIndex(1);
+    cmd->setLoopCount(m_totalChannel);
+    cmd->setBeginLoopIndex(m_fromChannel);
 
-    // 切通道 TODO
-    auto *singleCmd = initSwitchChannel(1);
-    cmd->addCmd(dynamic_cast<SingleCmd *>(singleCmd));
+    // 切通道
+    auto *channelCmd = new ChannelCmd();
+    channelCmd->setFromChannel(m_fromChannel);
+    channelCmd->setSender(m_mcuDataHandler);
+    channelCmd->setCmdCode(MCU_CMD_CHANNEL);
+    cmd->addCmd(channelCmd);
 
     // 标记浓度
-    singleCmd = initMarkConcentration(point, concentration);
-    cmd->addCmd(dynamic_cast<SingleCmd *>(singleCmd));
+    auto *singleCmd = initMarkConcentration(point, concentration);
+    cmd->addCmd(singleCmd);
 
     // 读取电阻值
     singleCmd = initReadResistance(concentration);
-    cmd->addCmd(dynamic_cast<SingleCmd *>(singleCmd));
+    cmd->addCmd(singleCmd);
 
     return cmd;
 }

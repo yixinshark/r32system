@@ -123,25 +123,8 @@ bool HandleMcuData::addCmd_nd_Content(const QVariantMap &info, QByteArray &data)
 
 bool HandleMcuData::addCmd_set_channel_Content(const QVariantMap &info, QByteArray &data)
 {
-    static int selected1Count = 0;
-    static int channel = 0;
     if (info.contains(MCU_SET_CHANNEL)) {
-        char tempChannel = static_cast<char>(info[MCU_SET_CHANNEL].toUInt());
-        // TODO 修改为用户选择的通道起始位
-        if (channel == 0x01) {
-            if (selected1Count == 2) {
-                // 第二次开始每次加1
-                channel += 1;
-                if (channel == 64) {
-                    selected1Count = 1;
-                }
-            } else {
-                channel = tempChannel;
-            }
-
-            selected1Count++;
-        }
-
+        char channel = static_cast<char>(info[MCU_SET_CHANNEL].toUInt());
         data.append(channel);
         data.append((char)0x00); // 填充一个字节
         data.append((char)0x00); // 填充一个字节
