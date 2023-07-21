@@ -24,6 +24,8 @@ public:
     QString senderName() const { return m_senderName; }
     void setSenderName(const QString &senderName) { m_senderName = senderName; }
     void sendCmdData(const QByteArray &data);
+    // 开启周期任务
+    virtual void startPeriodTask(bool enable) { }
     virtual QByteArray getSendData(char cmd, const QVariantMap &info);
     virtual void processReceivedData(const QByteArray &data) = 0;
 

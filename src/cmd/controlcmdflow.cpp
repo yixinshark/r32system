@@ -13,6 +13,7 @@
 #include "conditioncmd.h"
 #include "analyserconstant.h"
 #include "channelcmd.h"
+#include "calccrcmd.h"
 
 #include <QDebug>
 #include <QVariantMap>
@@ -89,7 +90,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
 void ControlCmdFlow::initCalibrationCmdFlow()
 {
-    m_calibrationCmdFlow.append(initSwitchChannel(1));
+    m_calibrationCmdFlow.append(initSwitchChannel(m_fromChannel));
     m_calibrationCmdFlow.append(initReadSensorAddress());
     m_calibrationCmdFlow.append(initReadFirmwareVersion());
     m_calibrationCmdFlow.append(initWait3Minutes());
@@ -281,11 +282,9 @@ BaseCmd *ControlCmdFlow::initWait5000Concentration()
 {
     auto *cmd = new ConditionCmd();
     cmd->setCondition(5100);
+    cmd->setWaitSecs(2);
     cmd->setSender(m_r32AnaDataHandler);
     cmd->setCmdCode(ANALYSER_CMD);
-
-    QVariantMap info;
-    cmd->setSendData(m_r32AnaDataHandler->getSendData(ANALYSER_CMD, info));
 
     return cmd;
 }
@@ -344,7 +343,7 @@ BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
     cmd->addCmd(channelCmd);
 
     // 标记浓度
-    auto *singleCmd = initMarkConcentration(point, concentration);
+    auto *singleCmd = initMarkConcentration(point);
     cmd->addCmd(singleCmd);
 
     // 读取电阻值
@@ -354,16 +353,12 @@ BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initMarkConcentration(int point, int concentration)
+BaseCmd *ControlCmdFlow::initMarkConcentration(int point)
 {
-    auto *singleCmd = new SingleCmd();
+    auto *singleCmd = new CalCcrCmd();
     singleCmd->setSender(m_r32DataHandler);
     singleCmd->setCmdCode(CMD_01);
-
-    QVariantMap info;
-    info.insert(SEND_CAL_POINT, point);
-    info.insert(SEND_CAL_CONCENTRATION, concentration);
-    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_01, info));
+    singleCmd->setCalCcrPoint(point);
 
     return singleCmd;
 }

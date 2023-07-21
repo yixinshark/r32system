@@ -37,10 +37,13 @@ int CompoundCmd::waitSecs()
 
 QString CompoundCmd::cmdInfo()
 {
-    if (m_curCmd)
-        return m_curCmd->cmdInfo();
+    QString info;
+    info = QString("通道%1: ").arg(m_loopIndex-1);
 
-    return QString("标定浓度中");
+    if (m_curCmd)
+        info += m_curCmd->cmdInfo();
+
+    return info;
 }
 
 void CompoundCmd::execute()

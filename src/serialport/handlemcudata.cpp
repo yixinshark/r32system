@@ -4,6 +4,7 @@
 
 #include "handlemcudata.h"
 #include "mcuconstant.h"
+#include "recorddata.h"
 
 #include <QDebug>
 
@@ -125,6 +126,7 @@ bool HandleMcuData::addCmd_set_channel_Content(const QVariantMap &info, QByteArr
 {
     if (info.contains(MCU_SET_CHANNEL)) {
         char channel = static_cast<char>(info[MCU_SET_CHANNEL].toUInt());
+        RecordData::instance()->setCurrentChannel(info[MCU_SET_CHANNEL].toInt());
         data.append(channel);
         data.append((char)0x00); // 填充一个字节
         data.append((char)0x00); // 填充一个字节

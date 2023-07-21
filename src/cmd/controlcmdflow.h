@@ -63,7 +63,7 @@ private:
     // 关闭风扇
     BaseCmd *initCloseFan();
     // 读取传感器浓度
-    BaseCmd *initMarkConcentration(int point, int concentration);
+    BaseCmd *initMarkConcentration(int point);
     // 读取电阻值
     BaseCmd *initReadResistance(int concentration);
 

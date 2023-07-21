@@ -7,6 +7,8 @@
 
 #include "handledatabase.h"
 
+#include <QTimer>
+
 class SerialPortCom;
 /*!
  * @brief R32分析仪器数据
@@ -19,6 +21,7 @@ public:
     ~HandleAnalyserData() override;
 
 public:
+    void startPeriodTask(bool enable) override;
     void setAddress(char address);
     void processReceivedData(const QByteArray &data) override;
 
@@ -31,6 +34,7 @@ private:
 
 private:
     char m_address = 0x00;
+    QTimer *m_timer = nullptr;
 };
 
 #endif //R32_HANDLEANALYSERDATA_H

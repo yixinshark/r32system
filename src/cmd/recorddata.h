@@ -60,17 +60,25 @@ public:
 
 public:
     void reset();
-    void setCurrentAddr(int addr);
-    int currentAddr();
+
+    // 存储当前分析仪浓度值
+    void setCurrentConcentration(int concentration);
+    // 获取当前分析仪浓度值
+    int getCurrentConcentration() const;
+
+    void setCurrentChannel(int channel) { m_currentChanel = channel; }
+    void setModuleAddress(int addr);
+    void setFirmwareVersion(const QString &version);
 
 private:
     RecordData();
     ~RecordData();
 
 private:
-    int m_currentAddr = 0;
+    int m_currentChanel = 0;
+    // 当前分析仪浓度值缓存
+    QList<int> m_concentrationCache;
     QMap<int, R32Info> m_recordData;
 };
-
 
 #endif //R32SYSTEM_RECORDDATA_H

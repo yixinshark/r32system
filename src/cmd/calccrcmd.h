@@ -1,20 +1,20 @@
 //
-// Created by yixin on 2023/7/19.
+// Created by yixin on 2023/7/21.
 //
 
-#ifndef R32SYSTEM_CONDITIONCMD_H
-#define R32SYSTEM_CONDITIONCMD_H
+#ifndef R32SYSTEM_CALCCRCMD_H
+#define R32SYSTEM_CALCCRCMD_H
 
 #include "basecmd.h"
 
 /*!
- * \class 条件等待命令
+ * @brief 标定浓度指令
  */
-class ConditionCmd : public BaseCmd
+class CalCcrCmd : public BaseCmd
 {
-public:
-    ConditionCmd();
-    ~ConditionCmd() override;
+    public:
+    CalCcrCmd();
+    ~CalCcrCmd() override;
 
 public:
     // 初始化命令
@@ -36,21 +36,19 @@ public:
     // 接收命令回执
     void recvCmdAckData(quint8 cmd) override;
 
-    void setWaitSecs(int secs) { m_waitSecs = secs; }
-    void setCondition(int condition) { m_targetConcentration = condition; }
-    void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
-    int cmdCode() const { return m_cmdCode; }
-    // 命令发送者(发送者类型)
+    void setCalCcrPoint(int point) { m_point = point; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
+    void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
 
 private:
-    int m_waitSecs = 0;
-    // 目标浓度
-    int m_targetConcentration = 0;
-    bool m_overed = false;
+    bool m_executeSuccess = false;
+    int m_point = 0;
+    int m_sentCount = 0;
     int m_cmdCode = 0;
+    QString m_errInfo;
+
     HandleDataBase *m_sender;
 };
 
 
-#endif //R32SYSTEM_CONDITIONCMD_H
+#endif //R32SYSTEM_CALCCRCMD_H

@@ -4,14 +4,30 @@
 
 #include "handleanalyserdata.h"
 #include "analyserconstant.h"
+#include "serialportcom.h"
+#include "recorddata.h"
 
 #include <QDebug>
 #include <QVariantMap>
 
 HandleAnalyserData::HandleAnalyserData(SerialPortCom *serialPortCom, QObject *parent)
     : HandleDataBase(serialPortCom, parent)
+    , m_timer(new QTimer(this))
 {
     m_senderName = "分析仪";
+
+    // 定时获取分析仪浓度
+    m_timer->setSingleShot(false);
+    m_timer->setInterval(200); // 默认200ms
+    connect(m_timer, &QTimer::timeout, this, [this, serialPortCom]{
+        static QByteArray data;
+        if (data.isEmpty()) {
+            QVariantMap info;
+            info.insert(ADDRESS, 0x01);
+            addContent(ANALYSER_CMD, info, data);
+        }
+        serialPortCom->sendData(data);
+    });
 }
 
 HandleAnalyserData::~HandleAnalyserData()
@@ -64,7 +80,7 @@ void HandleAnalyserData::handleContent(const QByteArray &content)
 {
     // 只处理0x06和0x1C长度的数据
     if (content.length() != 0x06 && content.length() != 0x1C) {
-        qWarning() << "content length is invalid:" << content;
+        qWarning() << "gasConcentration content length is invalid:" << content;
         return;
     }
 
@@ -74,6 +90,8 @@ void HandleAnalyserData::handleContent(const QByteArray &content)
                                static_cast<quint8>(content.at(1)) << 16 |
                                static_cast<quint8>(content.at(2)) << 8 |
                                static_cast<quint8>(content.at(3));
+
+        RecordData::instance()->setCurrentConcentration(gasConcentration);
 
         int alarmStatus = static_cast<quint8>(content.at(4)) << 8 | static_cast<quint8>(content.at(5));
 
@@ -172,6 +190,18 @@ void HandleAnalyserData::addContent(char cmd, const QVariantMap &info, QByteArra
 
     data.append(uchCRCHi);
     data.append(uchCRCLo);
+}
+
+void HandleAnalyserData::startPeriodTask(bool enable)
+{
+    if (enable) {
+        if (m_timer->isActive())
+            m_timer->stop();
+
+        m_timer->start();
+    } else {
+        m_timer->stop();
+    }
 }
 
 

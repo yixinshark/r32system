@@ -4,6 +4,7 @@
 
 #include "conditioncmd.h"
 #include "handledatabase.h"
+#include "recorddata.h"
 
 ConditionCmd::ConditionCmd()
 {
@@ -22,7 +23,7 @@ void ConditionCmd::initCmd()
 
 int ConditionCmd::waitSecs()
 {
-    return 0;
+    return m_waitSecs;
 }
 
 QString ConditionCmd::cmdInfo()
@@ -32,8 +33,11 @@ QString ConditionCmd::cmdInfo()
 
 void ConditionCmd::execute()
 {
-    if (m_sender) {
-        m_sender->sendCmdData(m_sendData);
+    static bool executed = false;
+    if (!executed) {
+        executed = true;
+        // 开启定时获取当前浓度
+        m_sender->startPeriodTask(true);
     }
 }
 
@@ -54,17 +58,20 @@ QString ConditionCmd::exeErrInfo()
 
 void ConditionCmd::recvAckTimeout()
 {
-
+    // 获取当前浓度
+    int concentration = RecordData::instance()->getCurrentConcentration();
+    if (concentration >= m_targetConcentration) {
+        m_overed = true;
+    }
 }
 
 void ConditionCmd::recvCmdAckData(quint8 cmd)
 {
-
-}
-
-void ConditionCmd::setCurrentConcentration(int concentration)
-{
-    if (concentration >= m_targetConcentration) {
-        m_overed = true;
+    if (cmd == m_cmdCode) {
+        // 获取当前浓度
+        int concentration = RecordData::instance()->getCurrentConcentration();
+        if (concentration >= m_targetConcentration) {
+            m_overed = true;
+        }
     }
 }

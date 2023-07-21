@@ -4,6 +4,7 @@
 
 #include "handler32data.h"
 #include "r32constant.h"
+#include "recorddata.h"
 
 #include <QDebug>
 #include <QByteArray>
@@ -243,6 +244,7 @@ bool Handler32data::readOperateResult(quint8 cmd, const QByteArray &data, QVaria
     auto readAddressAck = [](const QByteArray &data, QVariantMap &value) {
         value.insert(MODULE_ADDRESS, true);
         quint8 address = static_cast<quint8>(data.at(0));
+        RecordData::instance()->setModuleAddress(address);
         value.insert(READ_MODULE_ADDRESS, address);
     };
 
@@ -417,6 +419,7 @@ bool Handler32data::readFirmwareVersion(quint8 cmd, const QByteArray &data, QVar
     quint8 mainVersion = static_cast<quint8>(data.at(0));
     quint8 subVersion = static_cast<quint8>(data.at(1));
     QString version = QString("%1.%2").arg(mainVersion).arg(subVersion);
+    RecordData::instance()->setFirmwareVersion(version);
     qInfo() << "version:" << version;
     value.insert(ACK_FIRMWARE_VERSION, mainVersion);
     value.insert(ACK_FIRMWARE_SUB_VERSION, subVersion);
@@ -517,14 +520,22 @@ void Handler32data::addCheckSum(QByteArray &data)
 
 bool Handler32data::addCmd_nd_Content(const QVariantMap &info, QByteArray &data)
 {
-    if (!info.contains(SEND_CAL_POINT) || !info.contains(SEND_CAL_CONCENTRATION)) {
-        qWarning() << "cmd:" << CMD_01 << "info not contains cal point or cal concentration";
+    if (!info.contains(SEND_CAL_POINT)) {
+        qWarning() << "cmd:" << CMD_01 << "info not contains cal point";
         return false;
+    }
+
+    quint16 calConcentration;
+    if (!info.contains(SEND_CAL_CONCENTRATION)) {
+        // 获取实时值
+        calConcentration = RecordData::instance()->getCurrentConcentration();
+    } else {
+        calConcentration = static_cast<quint16>(info.value(SEND_CAL_CONCENTRATION).toUInt());
     }
 
     m_isSetAddress = false;
     quint8 calPoint = static_cast<quint8>(info.value(SEND_CAL_POINT).toUInt());
-    quint16 calConcentration = static_cast<quint16>(info.value(SEND_CAL_CONCENTRATION).toUInt());
+
     qInfo() << "calPoint:" << calPoint << "calConcentration:" << calConcentration;
 
     data.append(calPoint);

@@ -3,7 +3,7 @@
 //
 
 #include "channelcmd.h"
-#include "handledatabase.h"
+#include "recorddata.h"
 
 ChannelCmd::ChannelCmd()
 {
@@ -48,6 +48,7 @@ void ChannelCmd::execute()
         m_sendData = getSendData();
         m_sender->sendCmdData(m_sendData);
 
+        RecordData::instance()->setCurrentChannel(m_currentChannel);
         m_currentChannel++;
         m_sentCount++;
     }

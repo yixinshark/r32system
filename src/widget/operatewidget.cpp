@@ -284,5 +284,3 @@ void OperateWidget::startBtnClicked()
     m_startBtn->setText("执行中...");
     QTimer::singleShot(0, m_controlCmdFlow, &ControlCmdFlow::start);
 }
-
-
