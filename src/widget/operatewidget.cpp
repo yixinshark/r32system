@@ -9,6 +9,7 @@
 #include "handleanalyserdata.h"
 #include "connectwidget.h"
 #include "controlcmdflow.h"
+#include "recorddata.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -32,6 +33,7 @@ OperateWidget::OperateWidget(QWidget *parent)
     , m_optMsgLabel(new QTextEdit(this))
     , m_tableWidget(new QTableWidget(this))
     , m_controlCmdFlow(new ControlCmdFlow(this))
+    , m_timer(new QTimer(this))
 {
     // 初始化界面
     initUI();
@@ -41,6 +43,9 @@ OperateWidget::OperateWidget(QWidget *parent)
     auto *handler32Data = new Handler32data(m_r32ConnectWidget->serialPortCom(), this);
     // 分析仪数据处理
     auto *handlerAnalyserData = new HandleAnalyserData(m_r32AnaConnectWidget->serialPortCom(), this);
+
+    m_timer->setInterval(1000);
+    connect(m_timer, &QTimer::timeout, this, &OperateWidget::updateTableWidget);
 
     // 设置数据发送、处理
     m_controlCmdFlow->setMcuDataHandler(handlerMcuData);
@@ -122,6 +127,8 @@ void OperateWidget::initTableWidget()
     m_tableWidget->setColumnCount(16);
     m_tableWidget->setRowCount(10);
     m_tableWidget->setMinimumHeight(400);
+    // 表格不能编辑
+    m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     QStringList header;
     header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1" << "标定点2" << "标定点3" << "标定状态"
@@ -185,7 +192,7 @@ QLayout *OperateWidget::initSettingUI()
         int from = fromComboBox->currentText().toInt();
         int to = from + spinBox->value() - 1;
         toLineEdit->setText(QString::number(to));
-
+        m_fromChannel = from;
         m_controlCmdFlow->setFromChannel(from);
     });
     connect(spinBox, &QSpinBox::textChanged, this,
@@ -193,8 +200,8 @@ QLayout *OperateWidget::initSettingUI()
         int from = fromComboBox->currentText().toInt();
         int to = from + spinBox->value() - 1;
         toLineEdit->setText(QString::number(to));
-
-        m_controlCmdFlow->setTotalChannel(spinBox->value());
+        m_totalChannel = spinBox->value();
+        m_controlCmdFlow->setTotalChannel(m_totalChannel);
     });
 
     // TSI值；分析仪浓度数
@@ -283,4 +290,91 @@ void OperateWidget::startBtnClicked()
     m_started = true;
     m_startBtn->setText("执行中...");
     QTimer::singleShot(0, m_controlCmdFlow, &ControlCmdFlow::start);
+}
+
+void OperateWidget::updateTableWidget()
+{
+    // 取出RecordData数据更新到表格中
+    auto *recordData = RecordData::instance();
+    if (recordData->recordDataCount() == 0) {
+        return;
+    }
+
+    for (int i = m_fromChannel; i <= m_totalChannel; i++) {
+        if (!recordData->hasChannel(i)) {
+            continue;
+        }
+
+        const R32Info &info = recordData->getR32Info(i);
+        // 更新表格
+        int row = i - m_fromChannel;
+
+        // 传感器ID，判读表格中是否有值，有则更新，无则添加
+        if (m_tableWidget->item(row, 0)) {
+            m_tableWidget->item(row, 0)->setText(QString::number(info.channel));
+        } else {
+            m_tableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(info.channel)));
+        }
+        // 判定结果
+        if (m_tableWidget->item(row, 1)) {
+            m_tableWidget->item(row, 1)->setText(info.valid ? "合格" : "不合格");
+        } else {
+            m_tableWidget->setItem(row, 1, new QTableWidgetItem(info.valid ? "合格" : "不合格"));
+        }
+
+        // on/off, 如果是off，则显示红色背景，否则显示绿色背景
+        if (m_tableWidget->item(row, 2)) {
+            m_tableWidget->item(row, 2)->setText(info.on ? "ON" : "OFF");
+        } else {
+            m_tableWidget->setItem(row, 2, new QTableWidgetItem(info.on ? "ON" : "OFF"));
+        }
+        m_tableWidget->item(row, 2)->setBackgroundColor(info.on ? Qt::green : Qt::red);
+
+        // 软件版本
+        if (!info.softVersion.isEmpty()) {
+            if (m_tableWidget->item(row, 3)) {
+                m_tableWidget->item(row, 3)->setText(info.softVersion);
+            } else {
+                m_tableWidget->setItem(row, 3, new QTableWidgetItem(info.softVersion));
+            }
+        }
+
+        // 标定点1
+        if (info.point1 > 0) {
+            if (m_tableWidget->item(row, 4)) {
+                m_tableWidget->item(row, 4)->setText(QString::number(info.point1));
+            } else {
+                m_tableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(info.point1)));
+            }
+            m_tableWidget->item(row, 4)->setBackgroundColor(info.point1Valid ? Qt::green : Qt::red);
+        }
+
+        // 标定点2
+        if (info.point2 > 0) {
+            if (m_tableWidget->item(row, 5)) {
+                m_tableWidget->item(row, 5)->setText(QString::number(info.point2));
+            } else {
+                m_tableWidget->setItem(row, 5, new QTableWidgetItem(QString::number(info.point2)));
+            }
+            m_tableWidget->item(row, 5)->setBackgroundColor(info.point2Valid ? Qt::green : Qt::red);
+        }
+
+        // 标定点3
+        if (info.point3 > 0) {
+            if (m_tableWidget->item(row, 6)) {
+                m_tableWidget->item(row, 6)->setText(QString::number(info.point3));
+            } else {
+                m_tableWidget->setItem(row, 6, new QTableWidgetItem(QString::number(info.point3)));
+            }
+            m_tableWidget->item(row, 6)->setBackgroundColor(info.point3Valid ? Qt::green : Qt::red);
+        }
+
+        // 标定状态
+        if (m_tableWidget->item(row, 7)) {
+            m_tableWidget->item(row, 7)->setText(info.calStatus ? "成功" : "失败");
+        } else {
+            m_tableWidget->setItem(row, 7, new QTableWidgetItem(info.calStatus ? "成功" : "失败"));
+        }
+        m_tableWidget->item(row, 7)->setBackgroundColor(info.calStatus ? Qt::green : Qt::red);
+    }
 }

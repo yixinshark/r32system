@@ -241,9 +241,10 @@ bool Handler32data::readOperateResult(quint8 cmd, const QByteArray &data, QVaria
     };
 
     // 读取模块地址
-    auto readAddressAck = [](const QByteArray &data, QVariantMap &value) {
+    auto readAddressAck = [this](const QByteArray &data, QVariantMap &value) {
         value.insert(MODULE_ADDRESS, true);
         quint8 address = static_cast<quint8>(data.at(0));
+        m_address = address;
         RecordData::instance()->setModuleAddress(address);
         value.insert(READ_MODULE_ADDRESS, address);
     };
@@ -297,6 +298,7 @@ bool Handler32data::readOperateData(quint8 cmd, const QByteArray &data, QVariant
     switch (cmd) {
         case CMD_READ_R0_04:
             value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setR0Value(fData);
             break;
         case CMD_READ_PARAM1_05:
             value.insert(ACK_FLOAT_VALUE, fData);
@@ -306,9 +308,11 @@ bool Handler32data::readOperateData(quint8 cmd, const QByteArray &data, QVariant
             break;
         case CMD_READ_1000PPM_07:
             value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setR1000Value(fData);
             break;
         case CMD_READ_5000PPM_08:
             value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setR5000Value(fData);
             break;
         default:
             qWarning() << "cmd:" << cmd << "not support:" << data.toHex();

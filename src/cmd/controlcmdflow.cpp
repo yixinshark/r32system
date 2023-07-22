@@ -90,9 +90,10 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
 void ControlCmdFlow::initCalibrationCmdFlow()
 {
-    m_calibrationCmdFlow.append(initSwitchChannel(m_fromChannel));
-    m_calibrationCmdFlow.append(initReadSensorAddress());
-    m_calibrationCmdFlow.append(initReadFirmwareVersion());
+    //m_calibrationCmdFlow.append(initSwitchChannel(m_fromChannel));
+    //m_calibrationCmdFlow.append(initReadSensorAddress());
+    //m_calibrationCmdFlow.append(initReadFirmwareVersion());
+    m_calibrationCmdFlow.append(initPowerOnDetect());
     m_calibrationCmdFlow.append(initWait3Minutes());
     m_calibrationCmdFlow.append(initOperateValve());
     m_calibrationCmdFlow.append(initOperateFan());
@@ -100,8 +101,11 @@ void ControlCmdFlow::initCalibrationCmdFlow()
     m_calibrationCmdFlow.append(initCloseValve());
     m_calibrationCmdFlow.append(initCloseFan());
     m_calibrationCmdFlow.append(initGasPointCalibration(1, 5000));
+    // TODO 降低浓度
     m_calibrationCmdFlow.append(initGasPointCalibration(2, 1000));
+    // TODO 降低浓度
     m_calibrationCmdFlow.append(initGasPointCalibration(3, 0));
+    m_calibrationCmdFlow.append(initCalibrationOver());
 }
 
 void ControlCmdFlow::initDetectCmdFlow()
@@ -188,6 +192,30 @@ void ControlCmdFlow::executeCmdFlow()
         if (m_timer->isActive())
             m_timer->stop();
     }
+}
+
+BaseCmd *ControlCmdFlow::initPowerOnDetect()
+{
+    auto *compoundCmd = new CompoundCmd();
+    compoundCmd->setLoopCount(m_totalChannel);
+    compoundCmd->setBeginLoopIndex(m_fromChannel);
+
+    // 切通道
+    auto *channelCmd = new ChannelCmd();
+    channelCmd->setFromChannel(m_fromChannel);
+    channelCmd->setSender(m_mcuDataHandler);
+    channelCmd->setCmdCode(MCU_CMD_CHANNEL);
+    compoundCmd->addCmd(channelCmd);
+
+    // 读取地址
+    auto *readAddressCmd = initReadSensorAddress();
+    compoundCmd->addCmd(readAddressCmd);
+
+    // 读取固件版本
+    auto *readFirmwareVersionCmd = initReadFirmwareVersion();
+    compoundCmd->addCmd(readFirmwareVersionCmd);
+
+    return compoundCmd;
 }
 
 BaseCmd *ControlCmdFlow::initSwitchChannel(int channel)
@@ -379,4 +407,30 @@ BaseCmd *ControlCmdFlow::initReadResistance(int concentration)
     singleCmd->setSendData(m_r32DataHandler->getSendData((char)singleCmd->cmdCode(), info));
 
     return singleCmd;
+}
+
+BaseCmd *ControlCmdFlow::initCalibrationOver()
+{
+    auto *compoundCmd = new CompoundCmd();
+
+    // 先切通道
+    auto *cmd = new ChannelCmd();
+    cmd->setFromChannel(m_fromChannel);
+    cmd->setSender(m_mcuDataHandler);
+    cmd->setCmdCode(MCU_CMD_CHANNEL);
+    compoundCmd->addCmd(cmd);
+
+    // 再发送标定完成命令
+    auto *singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_02);
+    // TODO setSendData
+
+    // 再查询标定状态
+    singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_ND_STATUS_03);
+    // TODO setSendData
+
+    return compoundCmd;
 }

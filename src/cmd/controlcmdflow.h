@@ -44,6 +44,8 @@ private:
     void executeCmdFlow();
 
 private:
+    // 上电检测
+    BaseCmd *initPowerOnDetect();
     // 选择通道
     BaseCmd *initSwitchChannel(int channel);
     // 读取传感器地址
@@ -69,6 +71,8 @@ private:
 
     // 标定传感器浓度
     BaseCmd *initGasPointCalibration(int point, int concentration);
+    // 标定完成
+    BaseCmd *initCalibrationOver();
 
 private:
     HandleDataBase *m_r32AnaDataHandler = nullptr;

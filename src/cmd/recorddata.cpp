@@ -75,3 +75,82 @@ int RecordData::getCurrentConcentration() const
         return sum / 5;
     }
 }
+
+void RecordData::setCalPoint(int point)
+{
+    if (m_recordData.contains(m_currentChanel)) {
+        switch (point) {
+            case 1:
+                m_recordData[m_currentChanel].point1 = getCurrentConcentration();
+                // 当前浓度值在5000的10%范围内，认为是有效值
+                if (m_recordData[m_currentChanel].point1 >= 4500 && m_recordData[m_currentChanel].point1 <= 5500) {
+                    m_recordData[m_currentChanel].point1Valid = true;
+                } else {
+                    m_recordData[m_currentChanel].point1Valid = false;
+                }
+                break;
+            case 2:
+                m_recordData[m_currentChanel].point2 = getCurrentConcentration();
+                // 当前浓度值在3000的10%范围内，认为是有效值
+                if (m_recordData[m_currentChanel].point2 >= 2700 && m_recordData[m_currentChanel].point2 <= 3300) {
+                    m_recordData[m_currentChanel].point2Valid = true;
+                } else {
+                    m_recordData[m_currentChanel].point2Valid = false;
+                }
+                break;
+            case 3:
+                m_recordData[m_currentChanel].point3 = getCurrentConcentration();
+                // 当前浓度值在0的10%范围内，认为是有效值
+                if (m_recordData[m_currentChanel].point3 >= 0 && m_recordData[m_currentChanel].point3 <= 50) {
+                    m_recordData[m_currentChanel].point3Valid = true;
+                } else {
+                    m_recordData[m_currentChanel].point3Valid = false;
+                }
+                break;
+        }
+    } else {
+        qWarning() << "RecordData::setCalPoint: channel" << m_currentChanel << "not exists";
+    }
+}
+
+void RecordData::setR0Value(float r0)
+{
+    if (m_recordData.contains(m_currentChanel)) {
+        m_recordData[m_currentChanel].R0 = r0;
+    } else {
+        qWarning() << "RecordData::setR0Value: channel" << m_currentChanel << "not exists";
+    }
+}
+
+void RecordData::setR1000Value(float r1000)
+{
+    if (m_recordData.contains(m_currentChanel)) {
+        m_recordData[m_currentChanel].R1000 = r1000;
+    } else {
+        qWarning() << "RecordData::setR1000Value: channel" << m_currentChanel << "not exists";
+    }
+}
+
+void RecordData::setR5000Value(float r5000)
+{
+    if (m_recordData.contains(m_currentChanel)) {
+        m_recordData[m_currentChanel].R5000 = r5000;
+    } else {
+        qWarning() << "RecordData::setR5000Value: channel" << m_currentChanel << "not exists";
+    }
+}
+
+const R32Info &RecordData::getR32Info(int channel) const
+{
+    return m_recordData[channel];
+}
+
+bool RecordData::hasChannel(int channel) const
+{
+    return m_recordData.contains(channel);
+}
+
+int RecordData::recordDataCount() const
+{
+    return m_recordData.size();
+}

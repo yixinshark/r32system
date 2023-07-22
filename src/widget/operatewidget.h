@@ -7,6 +7,7 @@
 
 #include <QWidget>
 
+class QTimer;
 class QLabel;
 class QTextEdit;
 class QPushButton;
@@ -38,6 +39,9 @@ private:
     //QLayout *initReportUI();
 
 private:
+    void updateTableWidget();
+
+private:
     // r32传感器串口连接
     ConnectWidget *m_r32ConnectWidget;
     // r32分析仪串口连接
@@ -50,7 +54,11 @@ private:
     QTableWidget *m_tableWidget;
     // 控制命令流程
     ControlCmdFlow *m_controlCmdFlow;
+    QTimer *m_timer;
+
     bool m_started = false;
+    int m_fromChannel = 0;
+    int m_totalChannel = 0;
     QStringList m_msgList;
 };
 

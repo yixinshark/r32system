@@ -5,6 +5,7 @@
 #include "calccrcmd.h"
 #include "handledatabase.h"
 #include "r32constant.h"
+#include "recorddata.h"
 
 #include <QVariantMap>
 
@@ -44,6 +45,8 @@ void CalCcrCmd::execute()
     info.insert(SEND_CAL_POINT, m_point);
     data = m_sender->getSendData((char)m_cmdCode, info);
     m_sender->sendCmdData(data);
+
+    RecordData::instance()->setCalPoint(m_point);
 
     m_sentCount++;
 }

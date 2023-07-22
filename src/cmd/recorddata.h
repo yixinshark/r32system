@@ -61,6 +61,10 @@ public:
 public:
     void reset();
 
+    int recordDataCount() const;
+    bool hasChannel(int channel) const;
+    const R32Info &getR32Info(int channel) const;
+
     // 存储当前分析仪浓度值
     void setCurrentConcentration(int concentration);
     // 获取当前分析仪浓度值
@@ -69,6 +73,10 @@ public:
     void setCurrentChannel(int channel) { m_currentChanel = channel; }
     void setModuleAddress(int addr);
     void setFirmwareVersion(const QString &version);
+    void setCalPoint(int point);
+    void setR0Value(float r0);
+    void setR1000Value(float r1000);
+    void setR5000Value(float r5000);
 
 private:
     RecordData();
