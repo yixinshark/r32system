@@ -36,8 +36,6 @@ private:
 private:
     QDateTimeEdit *m_startTimeEdit;
     QDateTimeEdit *m_endTimeEdit;
-    QLineEdit *m_concentrationEdit;
-    QLineEdit *m_precisionEdit;
     QPushButton *m_queryButton;
     QPushButton *m_exportButton;
     QTableView *m_tableView;

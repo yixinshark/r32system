@@ -28,13 +28,11 @@ QueryWidget::QueryWidget(QWidget *parent)
     : QWidget(parent)
     , m_startTimeEdit(new QDateTimeEdit(this))
     , m_endTimeEdit(new QDateTimeEdit(this))
-    , m_concentrationEdit(new QLineEdit(this))
-    , m_precisionEdit(new QLineEdit(this))
     , m_queryButton(new QPushButton("查询",this))
     , m_exportButton(new QPushButton("导出",this))
     , m_tableView(new QTableView(this))
     , m_pageWidget(new PageWidget(this))
-//    , m_queryModel(new QSqlQueryModel(this))
+    // , m_queryModel(new QSqlQueryModel(this))
 {
     initUI();
 
@@ -70,19 +68,12 @@ void QueryWidget::initUI() {
     m_startTimeEdit->setDateTime(QDateTime::currentDateTime().addDays(-1));
     m_endTimeEdit->setDateTime(QDateTime::currentDateTime());
 
-    m_concentrationEdit->setMaximumWidth(40);
-    m_precisionEdit->setMaximumWidth(40);
-
     auto *hLayout = new QHBoxLayout;
     hLayout->setSpacing(10);
     hLayout->addWidget(new QLabel("开始时间:"));
     hLayout->addWidget(m_startTimeEdit);
     hLayout->addWidget(new QLabel("结束时间:"));
     hLayout->addWidget(m_endTimeEdit);
-    hLayout->addWidget(new QLabel("标准浓度值:"));
-    hLayout->addWidget(m_concentrationEdit);
-    hLayout->addWidget(new QLabel("精度值%:"));
-    hLayout->addWidget(m_precisionEdit);
     hLayout->addStretch();
     hLayout->addWidget(m_queryButton);
     hLayout->addWidget(m_exportButton);
@@ -234,20 +225,6 @@ void QueryWidget::exportToExcel(const QString &filename, const QString &startTim
             cell = worksheet->querySubObject("Cells(int,int)", row + 2, column + 1);
             cell->setProperty("Value", queryModel->data(queryModel->index(row, column)).toString());
         }
-
-        // 计算结果信息
-        QString concentration = queryModel->data(queryModel->index(row, 6)).toString();
-        double userConcentration = m_concentrationEdit->text().toDouble();
-        double precision = m_precisionEdit->text().toDouble();
-        // 根据需要计算结果信息并写入单元格
-        bool in = isWithinRange(concentration.toDouble(), userConcentration, precision);
-        if (in) {
-            cell = worksheet->querySubObject("Cells(int,int)", row + 2, 13);
-            cell->setProperty("Value", "合格");
-        } else {
-            cell = worksheet->querySubObject("Cells(int,int)", row + 2, 13);
-            cell->setProperty("Value", "不合格");
-        }
     }
 
     workbook->dynamicCall("SaveAs(const QString&)", QDir::toNativeSeparators(filename));
@@ -307,8 +284,6 @@ int QueryWidget::canQueryDataCount()
 {
     QString startTime = m_startTimeEdit->text();
     QString endTime = m_endTimeEdit->text();
-    QString concentration = m_concentrationEdit->text();
-    QString precision = m_precisionEdit->text();
 
     // 检查时间范围是否为两天内
     QDateTime startDateTime = QDateTime::fromString(startTime, "yyyy-MM-dd hh:mm:ss");

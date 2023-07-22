@@ -17,10 +17,10 @@ PageWidget::PageWidget(QWidget *parent)
     previousButton->setMaximumWidth(80);
     auto *nextButton= new QPushButton("下一页",this);
     nextButton->setMaximumWidth(80);
-    m_pageNumberLabel->setMaximumWidth(40);
+    m_pageNumberLabel->setMaximumWidth(80);
     m_pageNumberLabel->setText("第1页");
-    m_pageNumberInput->setMaximumWidth(50);
-    m_pageTotalLabel->setMaximumWidth(40);
+    m_pageNumberInput->setMaximumWidth(60);
+    m_pageTotalLabel->setMaximumWidth(80);
     m_pageTotalLabel->setText("共1页");
 
     auto *hLayout = new QHBoxLayout;
