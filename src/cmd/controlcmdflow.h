@@ -21,6 +21,8 @@ public:
 
 signals:
     void cmdexecuted(const QString &info);
+    // 标定完成
+    void exceuteOvered();
 
 public:
     void start();
@@ -92,9 +94,8 @@ private:
     bool m_detectMode = false;
 
 private:
-    // 标定命令控制流
-    QList<BaseCmd *> m_calibrationCmdFlow;
-    QList<BaseCmd *> m_detectCmdFlow;
+    // 命令控制流
+    QList<BaseCmd *> m_controlCmdFlow;
 };
 
 #endif //R32SYSTEM_CONTROLCMDFLOW_H

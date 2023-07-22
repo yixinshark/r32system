@@ -64,6 +64,22 @@ OperateWidget::OperateWidget(QWidget *parent)
     // 命令执行提示信息
     connect(m_controlCmdFlow, &ControlCmdFlow::cmdexecuted,
             this, &OperateWidget::showOperateMsg);
+
+    connect(m_controlCmdFlow, &ControlCmdFlow::exceuteOvered, this, [this](){
+        showOperateMsg("-----任务执行完成-----");
+        m_startBtn->setText("开始");
+        m_started = false;
+
+        // 1s后停止更新表格
+        QTimer::singleShot(1000, this, [this]{
+            if (m_timer->isActive()) {
+                m_timer->stop();
+            }
+        });
+
+        // 提示执行完成
+        QMessageBox::information(nullptr, tr("提示"), tr("任务执行完成,请确保数据保存!"), QMessageBox::Ok);
+    });
 }
 
 OperateWidget::~OperateWidget()
@@ -265,7 +281,11 @@ QLayout *OperateWidget::initBtnsUI()
                 m_controlCmdFlow->stop();
                 m_started = false;
             }
+
             m_startBtn->setText("开始");
+            if (m_timer->isActive()) {
+                m_timer->stop();
+            }
         }
     });
 
@@ -289,7 +309,10 @@ void OperateWidget::startBtnClicked()
 
     m_started = true;
     m_startBtn->setText("执行中...");
-    QTimer::singleShot(0, m_controlCmdFlow, &ControlCmdFlow::start);
+    QTimer::singleShot(0, this, [this] {
+        m_controlCmdFlow->start();
+        m_timer->start();
+    });
 }
 
 void OperateWidget::updateTableWidget()

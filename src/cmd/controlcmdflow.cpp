@@ -54,12 +54,12 @@ void ControlCmdFlow::stop()
     if (m_timer->isActive())
         m_timer->stop();
 
-    if (!m_calibrationCmdFlow.isEmpty()) {
-        for (auto *cmd : m_calibrationCmdFlow) {
+    if (!m_controlCmdFlow.isEmpty()) {
+        for (auto *cmd : m_controlCmdFlow) {
             delete cmd;
         }
 
-        m_calibrationCmdFlow.clear();
+        m_controlCmdFlow.clear();
     }
 }
 
@@ -70,7 +70,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
         return;
     }
 
-    auto *currentCmd = m_calibrationCmdFlow.first();
+    auto *currentCmd = m_controlCmdFlow.first();
     if (!currentCmd) {
         qWarning() << "currentCmd is null";
         return;
@@ -78,7 +78,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
     currentCmd->recvCmdAckData(cmd);
     if (currentCmd->exeOvered()) {
-        m_calibrationCmdFlow.removeFirst();
+        m_controlCmdFlow.removeFirst();
         delete currentCmd;
 
         executeCmdFlow();
@@ -86,32 +86,39 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
         currentCmd->execute();
         Q_EMIT cmdexecuted(currentCmd->cmdInfo());
     }
+
+    if (m_controlCmdFlow.isEmpty()) {
+        if (m_timer->isActive())
+            m_timer->stop();
+
+        Q_EMIT exceuteOvered();
+    }
 }
 
 void ControlCmdFlow::initCalibrationCmdFlow()
 {
-    //m_calibrationCmdFlow.append(initSwitchChannel(m_fromChannel));
-    //m_calibrationCmdFlow.append(initReadSensorAddress());
-    //m_calibrationCmdFlow.append(initReadFirmwareVersion());
-    m_calibrationCmdFlow.append(initPowerOnDetect());
-    m_calibrationCmdFlow.append(initWait3Minutes());
-    m_calibrationCmdFlow.append(initOperateValve());
-    m_calibrationCmdFlow.append(initOperateFan());
-    m_calibrationCmdFlow.append(initWait5000Concentration());
-    m_calibrationCmdFlow.append(initCloseValve());
-    m_calibrationCmdFlow.append(initCloseFan());
-    m_calibrationCmdFlow.append(initGasPointCalibration(1, 5000));
+    //m_controlCmdFlow.append(initSwitchChannel(m_fromChannel));
+    //m_controlCmdFlow.append(initReadSensorAddress());
+    //m_controlCmdFlow.append(initReadFirmwareVersion());
+    m_controlCmdFlow.append(initPowerOnDetect());
+    m_controlCmdFlow.append(initWait3Minutes());
+    m_controlCmdFlow.append(initOperateValve());
+    m_controlCmdFlow.append(initOperateFan());
+    m_controlCmdFlow.append(initWait5000Concentration());
+    m_controlCmdFlow.append(initCloseValve());
+    m_controlCmdFlow.append(initCloseFan());
+    m_controlCmdFlow.append(initGasPointCalibration(1, 5000));
     // TODO 降低浓度
-    m_calibrationCmdFlow.append(initGasPointCalibration(2, 1000));
+    m_controlCmdFlow.append(initGasPointCalibration(2, 1000));
     // TODO 降低浓度
-    m_calibrationCmdFlow.append(initGasPointCalibration(3, 0));
-    m_calibrationCmdFlow.append(initCalibrationOver());
+    m_controlCmdFlow.append(initGasPointCalibration(3, 0));
+    m_controlCmdFlow.append(initCalibrationOver());
 }
 
 void ControlCmdFlow::initDetectCmdFlow()
 {
-    if (!m_calibrationCmdFlow.isEmpty())
-        m_calibrationCmdFlow.clear();
+    if (!m_controlCmdFlow.isEmpty())
+        m_controlCmdFlow.clear();
 
     // TODO: 检测流程
 }
@@ -139,7 +146,7 @@ void ControlCmdFlow::timerTimeout()
     }
 
     qInfo() << Q_FUNC_INFO;
-    auto *currentCmd = m_calibrationCmdFlow.first();
+    auto *currentCmd = m_controlCmdFlow.first();
     if (!currentCmd) {
         qWarning() << "currentCmd is null";
         return;
@@ -153,7 +160,7 @@ void ControlCmdFlow::timerTimeout()
     }
 
     if (currentCmd->exeOvered()) {
-        m_calibrationCmdFlow.removeFirst();
+        m_controlCmdFlow.removeFirst();
         delete currentCmd;
 
         executeCmdFlow();
@@ -161,16 +168,23 @@ void ControlCmdFlow::timerTimeout()
         currentCmd->execute();
         Q_EMIT cmdexecuted(currentCmd->cmdInfo());
     }
+
+    if (m_controlCmdFlow.isEmpty()) {
+        if (m_timer->isActive())
+            m_timer->stop();
+
+        Q_EMIT exceuteOvered();
+    }
 }
 
 void ControlCmdFlow::executeCmdFlow()
 {
-    if (!m_calibrationCmdFlow.isEmpty()) {
+    if (!m_controlCmdFlow.isEmpty()) {
         if (m_timer->isActive()) {
             m_timer->stop();
         }
 
-        auto cmd = m_calibrationCmdFlow.first();
+        auto cmd = m_controlCmdFlow.first();
         if (!cmd) {
             qWarning() << "cmd is null";
             return;
@@ -178,7 +192,7 @@ void ControlCmdFlow::executeCmdFlow()
 
         if (cmd->waitSecs() == 0) {
             cmd->execute();
-            Q_EMIT cmdexecuted(m_calibrationCmdFlow.first()->cmdInfo());
+            Q_EMIT cmdexecuted(m_controlCmdFlow.first()->cmdInfo());
         }
 
         int waitSecs = cmd->waitSecs() ? cmd->waitSecs() * 1000 : 200;
@@ -186,7 +200,7 @@ void ControlCmdFlow::executeCmdFlow()
         m_timer->setInterval(waitSecs);
         m_timer->start();
         if (cmd->waitSecs() > 0) {
-            Q_EMIT cmdexecuted(m_calibrationCmdFlow.first()->cmdInfo());
+            Q_EMIT cmdexecuted(m_controlCmdFlow.first()->cmdInfo());
         }
     } else {
         if (m_timer->isActive())
