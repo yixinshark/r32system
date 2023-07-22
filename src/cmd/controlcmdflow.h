@@ -21,7 +21,7 @@ public:
 
 signals:
     void cmdexecuted(const QString &info);
-    // 标定完成
+    // 完成任务
     void exceuteOvered();
 
 public:

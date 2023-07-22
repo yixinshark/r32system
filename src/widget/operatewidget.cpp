@@ -140,15 +140,15 @@ void OperateWidget::initUI()
 
 void OperateWidget::initTableWidget()
 {
-    m_tableWidget->setColumnCount(16);
-    m_tableWidget->setRowCount(10);
+    QStringList header;
+    header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1" << "标定点2" << "标定点3" << "标定状态"
+           << "标定的零点阻值R0" << "1000PPM的阻值" << "5000PPM的阻值" << "参数P" << "参数P1" << "参数P2" << "温度" << "湿度";
+
+    m_tableWidget->setColumnCount(header.count());
+    m_tableWidget->setRowCount(m_totalChannel);
     m_tableWidget->setMinimumHeight(400);
     // 表格不能编辑
     m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    QStringList header;
-    header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1" << "标定点2" << "标定点3" << "标定状态"
-            << "标定的零点阻值R0" << "1000PPM的阻值" << "5000PPM的阻值" << "参数P" << "参数P1" << "参数P2" << "温度" << "湿度";
 
     m_tableWidget->setHorizontalHeaderLabels(header);
 }
@@ -328,9 +328,13 @@ void OperateWidget::updateTableWidget()
             continue;
         }
 
-        const R32Info &info = recordData->getR32Info(i);
         // 更新表格
+        const R32Info &info = recordData->getR32Info(i);
         int row = i - m_fromChannel;
+        // 如果表格行不够，则添加
+        if (row >= m_tableWidget->rowCount()) {
+            m_tableWidget->setRowCount(row + 1);
+        }
 
         // 传感器ID，判读表格中是否有值，有则更新，无则添加
         if (m_tableWidget->item(row, 0)) {
