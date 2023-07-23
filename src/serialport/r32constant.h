@@ -21,14 +21,16 @@ const quint8 CMD_02 = 0x02;
 const quint8 CMD_ND_STATUS_03 = 0x03;
 // 读取标定的零点阻值R0
 const quint8 CMD_READ_R0_04 = 0x04;
-// 读取标定参数1
-const quint8 CMD_READ_PARAM1_05 = 0x05;
-// 读取标定参数2
-const quint8 CMD_READ_PARAM2_06 = 0x06;
-// 读取1000ppm的Rs/R0
-const quint8 CMD_READ_1000PPM_07 = 0x07;
-// 读取5000ppm的Rs/R0
-const quint8 CMD_READ_5000PPM_08 = 0x08;
+// 读取1000PPM的阻值
+const quint8 CMD_READ_1000PPM_05 = 0x05;
+// 读取5000PPM的阻值
+const quint8 CMD_READ_5000PPM_06 = 0x06;
+// 读取参数p
+const quint8 CMD_READ_PARMA_P_07 = 0x07;
+// 读取参数p1
+const quint8 CMD_READ_PARMA_P1_08 = 0x08;
+// 读取参数p2
+const quint8 CMD_READ_PARMA_P2_09 = 0x09;
 
 // 检测温度和湿度 0x21
 const quint8 CMD_READ_TEMP_HUM_21 = 0x21;

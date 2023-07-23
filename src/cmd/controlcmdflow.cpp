@@ -509,9 +509,9 @@ BaseCmd *ControlCmdFlow::initReadResistance(int concentration)
     singleCmd->setSender(m_r32DataHandler);
 
     if (concentration == 5000)
-        singleCmd->setCmdCode(CMD_READ_5000PPM_08);
+        singleCmd->setCmdCode(CMD_READ_5000PPM_06);
     else if (concentration == 1000)
-        singleCmd->setCmdCode(CMD_READ_1000PPM_07);
+        singleCmd->setCmdCode(CMD_READ_1000PPM_05);
     else
         singleCmd->setCmdCode(CMD_READ_R0_04);
 
@@ -550,26 +550,26 @@ BaseCmd *ControlCmdFlow::initCalibrationOver()
     singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_ND_STATUS_03, info));
     compoundCmd->addCmd(singleCmd);
 
-    // 读取p,p1,p2,温湿度参数 TODO 协议变了
+    // 读取p,p1,p2,温湿度参数
     singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
-    singleCmd->setCmdCode(CMD_READ_PARAM1_05);
+    singleCmd->setCmdCode(CMD_READ_PARMA_P_07);
     info.clear();
-    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARAM1_05, info));
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARMA_P_07, info));
     compoundCmd->addCmd(singleCmd);
 
     singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
-    singleCmd->setCmdCode(CMD_READ_PARAM2_06);
+    singleCmd->setCmdCode(CMD_READ_PARMA_P1_08);
     info.clear();
-    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARAM2_06, info));
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARMA_P1_08, info));
     compoundCmd->addCmd(singleCmd);
 
     singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
-    singleCmd->setCmdCode(CMD_READ_1000PPM_07);
+    singleCmd->setCmdCode(CMD_READ_PARMA_P2_09);
     info.clear();
-    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_1000PPM_07, info));
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARMA_P2_09, info));
     compoundCmd->addCmd(singleCmd);
 
     singleCmd = new SingleCmd();

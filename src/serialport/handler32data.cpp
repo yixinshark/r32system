@@ -18,10 +18,11 @@ Handler32data::Handler32data(SerialPortCom *serialPortCom, QObject *parent)
             {CMD_02, &Handler32data::readOperateResult},
             {CMD_ND_STATUS_03, &Handler32data::readOperateResult},
             {CMD_READ_R0_04, &Handler32data::readOperateData},
-            {CMD_READ_PARAM1_05, &Handler32data::readOperateData},
-            {CMD_READ_PARAM2_06, &Handler32data::readOperateData},
-            {CMD_READ_1000PPM_07, &Handler32data::readOperateData},
-            {CMD_READ_5000PPM_08, &Handler32data::readOperateData},
+            {CMD_READ_1000PPM_05, &Handler32data::readOperateData},
+            {CMD_READ_5000PPM_06, &Handler32data::readOperateData},
+            {CMD_READ_PARMA_P_07, &Handler32data::readOperateData},
+            {CMD_READ_PARMA_P1_08, &Handler32data::readOperateData},
+            {CMD_READ_PARMA_P2_09, &Handler32data::readOperateData},
             {CMD_READ_TEMP_HUM_21, &Handler32data::readTemperatureHumidity},
             {CMD_READ_ADC_22, &Handler32data::readGasProbeADC},
             {CMD_READ_RESISTANCE_23, &Handler32data::readGasProbeResistance},
@@ -301,21 +302,25 @@ bool Handler32data::readOperateData(quint8 cmd, const QByteArray &data, QVariant
             value.insert(ACK_FLOAT_VALUE, fData);
             RecordData::instance()->setR0Value(fData);
             break;
-        case CMD_READ_PARAM1_05:
-            value.insert(ACK_FLOAT_VALUE, fData);
-            RecordData::instance()->setPValue(fData);
-            break;
-        case CMD_READ_PARAM2_06:
-            value.insert(ACK_FLOAT_VALUE, fData);
-            RecordData::instance()->setP1Value(fData);
-            break;
-        case CMD_READ_1000PPM_07:
+        case CMD_READ_1000PPM_05:
             value.insert(ACK_FLOAT_VALUE, fData);
             RecordData::instance()->setR1000Value(fData);
             break;
-        case CMD_READ_5000PPM_08:
+        case CMD_READ_5000PPM_06:
             value.insert(ACK_FLOAT_VALUE, fData);
             RecordData::instance()->setR5000Value(fData);
+            break;
+        case CMD_READ_PARMA_P_07:
+            value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setPValue(fData);
+            break;
+        case CMD_READ_PARMA_P1_08:
+            value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setP1Value(fData);
+            break;
+        case CMD_READ_PARMA_P2_09:
+            value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setP2Value(fData);
             break;
         default:
             qWarning() << "cmd:" << cmd << "not support:" << data.toHex();
