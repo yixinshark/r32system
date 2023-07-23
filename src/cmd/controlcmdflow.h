@@ -46,7 +46,7 @@ private:
     void executeCmdFlow();
 
 private:
-    // 上电检测
+    // 轮询上电检测
     BaseCmd *initPowerOnDetect();
     // 选择通道
     BaseCmd *initSwitchChannel(int channel);
@@ -56,12 +56,12 @@ private:
     BaseCmd *initReadFirmwareVersion();
     // 等待3分钟
     BaseCmd *initWait3Minutes();
-    // 打开电磁阀
-    BaseCmd *initOperateValve();
+    // 操作电磁阀
+    BaseCmd *initOperateValve(bool open1, bool open2, bool open3, bool open4);
     // 操作风扇
-    BaseCmd *initOperateFan();
-    // 浓度5000点等待
-    BaseCmd *initWait5000Concentration();
+    BaseCmd *initOperateFan(bool open1, bool open2, bool open3, bool open4, int waitSecs = 0);
+    // 浓度点等待
+    BaseCmd *initWaitConcentration(int point);
     // 关闭电磁阀
     BaseCmd *initCloseValve();
     // 关闭风扇
@@ -73,8 +73,14 @@ private:
 
     // 标定传感器浓度
     BaseCmd *initGasPointCalibration(int point, int concentration);
+    // 关闭分析仪获取数据
+    BaseCmd *initCloseR32AnaGetGasData();
     // 标定完成
     BaseCmd *initCalibrationOver();
+
+    // 获取气体浓度值
+    BaseCmd *initGetGasConcentration(int concentration);
+
 
 private:
     HandleDataBase *m_r32AnaDataHandler = nullptr;

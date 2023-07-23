@@ -171,6 +171,7 @@ bool Handler32data::readOperateResult(quint8 cmd, const QByteArray &data, QVaria
                 value.insert(ACK_ERROR, "未知状态");
                 break;
         }
+        RecordData::instance()->setCalibrationStatus(value.value(ACK_RESULT).toString());
     };
 
     // 打开或者关闭周期性打印数据
@@ -290,10 +291,10 @@ bool Handler32data::readOperateData(quint8 cmd, const QByteArray &data, QVariant
 
     // 读取ack数值
     float fData = 0;
-    memcpy(&fData, data.data(), 4);
+    //memcpy(&fData, data.data(), 4);
     // 4个字节的数据，高位在前，低位在后，使用左移和或运算
-//    fData = (static_cast<quint8>(data.at(0)) << 24) | (static_cast<quint8>(data.at(1)) << 16) |
-//            (static_cast<quint8>(data.at(2)) << 8) | (static_cast<quint8>(data.at(3)));
+    fData = (static_cast<quint8>(data.at(0)) << 24) | (static_cast<quint8>(data.at(1)) << 16) |
+            (static_cast<quint8>(data.at(2)) << 8) | (static_cast<quint8>(data.at(3)));
 
     switch (cmd) {
         case CMD_READ_R0_04:
@@ -302,9 +303,11 @@ bool Handler32data::readOperateData(quint8 cmd, const QByteArray &data, QVariant
             break;
         case CMD_READ_PARAM1_05:
             value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setPValue(fData);
             break;
         case CMD_READ_PARAM2_06:
             value.insert(ACK_FLOAT_VALUE, fData);
+            RecordData::instance()->setP1Value(fData);
             break;
         case CMD_READ_1000PPM_07:
             value.insert(ACK_FLOAT_VALUE, fData);
@@ -341,6 +344,8 @@ bool Handler32data::readTemperatureHumidity(quint8 cmd, const QByteArray &data, 
     // 高字节在前，低字节在后
     humidity = (static_cast<quint8>(data.at(2)) << 8) | (static_cast<quint8>(data.at(3)));
     value.insert(ACK_HUMIDITY, humidity / 10.0);
+
+    RecordData::instance()->setTemperatureAndHumidity(temperature / 10.0, humidity / 10.0);
 
     return true;
 }
@@ -393,6 +398,27 @@ bool Handler32data::readGasConcentration(quint8 cmd, const QByteArray &data, QVa
     // 高字节在前，低字节在后
     concentration = (static_cast<quint8>(data.at(0)) << 8) | (static_cast<quint8>(data.at(1)));
     value.insert(ACK_GAS_CONCENTRATION, concentration);
+
+    switch (m_currentDetectPoint) {
+        case 0:
+            RecordData::instance()->setDetectPoint0(concentration);
+            break;
+        case 500:
+            RecordData::instance()->setDetectPoint500(concentration);
+            break;
+        case 1000:
+            RecordData::instance()->setDetectPoint1000(concentration);
+            break;
+        case 3000:
+            RecordData::instance()->setDetectPoint3000(concentration);
+            break;
+        case 5000:
+            RecordData::instance()->setDetectPoint5000(concentration);
+            break;
+        default:
+            qWarning() << "unknown detect point:" << m_currentDetectPoint;
+            break;
+    }
 
     // 读取报警状态
     quint8 alarm = static_cast<quint8>(data.at(2));
@@ -507,6 +533,10 @@ void Handler32data::addContent(char cmd, const QVariantMap &info, QByteArray &da
         default:
             addFourNoneByte();
             break;
+    }
+
+    if (cmd == CMD_READ_GAS_CONCENTRATION_25) {
+        m_currentDetectPoint = static_cast<quint8>(info.value(GAS_CONCENTRATION).toUInt());
     }
 
     addCheckSum(data);

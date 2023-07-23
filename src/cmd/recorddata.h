@@ -7,6 +7,7 @@
 
 #include <QString>
 #include <QMap>
+#include <QDateTime>
 
 struct R32Info {
     int channel = 0;
@@ -18,8 +19,6 @@ struct R32Info {
     bool point2Valid = false;
     int point3 = 0;
     bool point3Valid = false;
-    // 标定状态
-    bool calStatus = false;
     float R0 = 0.0;
     float R1000 = 0.0;
     float R5000 = 0.0;
@@ -34,20 +33,35 @@ struct R32Info {
     // 5000浓度
     int r32Ccr5000 = 0;
     int ccr5000 = 0;
+    bool ccr5000Valid = false;
     // 3000浓度
     int r32Ccr3000 = 0;
     int ccr3000 = 0;
+    bool ccr3000Valid = false;
     // 1000浓度
     int r32Ccr1000 = 0;
     int ccr1000 = 0;
+    bool ccr1000Valid = false;
     // 500浓度
     int r32Ccr500 = 0;
     int ccr500 = 0;
+    bool ccr500Valid = false;
     // 0浓度
     int r32Ccr0 = 0;
     int ccr0 = 0;
+    bool ccr0Valid = false;
+
     bool valid= false; // 判定结果
+    // 标定状态
+    QString calStatus;
     QString softVersion;
+    QString dateTime;
+
+    void checkIsValid() {
+        dateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        valid = (point1Valid && point2Valid && point3Valid && ccr0Valid
+                && ccr500Valid && ccr1000Valid && ccr3000Valid && ccr5000Valid);
+    }
 };
 
 /*!
@@ -60,6 +74,7 @@ public:
 
 public:
     void reset();
+    void clearConcentrationCache();
 
     int recordDataCount() const;
     bool hasChannel(int channel) const;
@@ -77,6 +92,19 @@ public:
     void setR0Value(float r0);
     void setR1000Value(float r1000);
     void setR5000Value(float r5000);
+
+    void setPValue(float p);
+    void setP1Value(float p1);
+    void setP2Value(float p2);
+    void setTemperatureAndHumidity(float temperature, float humidity);
+
+    void setCalibrationStatus(const QString &result);
+
+    void setDetectPoint0(int concentration);
+    void setDetectPoint500(int concentration);
+    void setDetectPoint1000(int concentration);
+    void setDetectPoint3000(int concentration);
+    void setDetectPoint5000(int concentration);
 
 private:
     RecordData();

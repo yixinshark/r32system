@@ -1,20 +1,17 @@
 //
-// Created by yixin on 2023/7/19.
+// Created by yixin on 2023/7/23.
 //
 
-#ifndef R32SYSTEM_CONDITIONCMD_H
-#define R32SYSTEM_CONDITIONCMD_H
+#ifndef R32SYSTEM_SETADDRESSCMD_H
+#define R32SYSTEM_SETADDRESSCMD_H
 
 #include "basecmd.h"
 
-/*!
- * \class 条件等待命令
- */
-class ConditionCmd : public BaseCmd
+class SetAddressCmd : public BaseCmd
 {
 public:
-    ConditionCmd();
-    ~ConditionCmd() override;
+    SetAddressCmd();
+    ~SetAddressCmd() override;
 
 public:
     // 初始化命令
@@ -36,23 +33,21 @@ public:
     // 接收命令回执
     void recvCmdAckData(quint8 cmd) override;
 
-    void setEnable(bool enable) { m_enable = enable; }
-    void setWaitSecs(int secs) { m_waitSecs = secs; }
-    void setCondition(int condition) { m_targetConcentration = condition; }
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
-    int cmdCode() const { return m_cmdCode; }
-    // 命令发送者(发送者类型)
+    void setFromChannel(int channel) { m_fromChannel = channel; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
 
 private:
-    bool m_enable = true;
-    int m_waitSecs = 0;
-    // 目标浓度
-    int m_targetConcentration = 0;
-    bool m_overed = false;
+    int m_fromChannel = 0;
+    int m_currentChannel = 0;
+    bool m_executeSuccess = false;
+    int m_sentCount = 0;
     int m_cmdCode = 0;
+    QString m_errInfo;
+
     HandleDataBase *m_sender;
+    QByteArray m_sendData;
 };
 
 
-#endif //R32SYSTEM_CONDITIONCMD_H
+#endif //R32SYSTEM_SETADDRESSCMD_H

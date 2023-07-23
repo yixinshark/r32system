@@ -70,6 +70,8 @@ private:
     bool m_isSetAddress = false;
     // 读取模块的地址的命令号:0x02
     bool m_isReadAddress = false;
+    // 获取当前浓度点
+    int m_currentDetectPoint = -1;
 };
 
 

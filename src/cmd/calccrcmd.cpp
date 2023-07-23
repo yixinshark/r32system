@@ -46,14 +46,17 @@ void CalCcrCmd::execute()
     data = m_sender->getSendData((char)m_cmdCode, info);
     m_sender->sendCmdData(data);
 
-    RecordData::instance()->setCalPoint(m_point);
-
     m_sentCount++;
 }
 
 bool CalCcrCmd::exeOvered()
 {
     if (m_executeSuccess || m_sentCount >= 3) {
+        if (!m_executeSuccess) {
+            m_errInfo = QString("标定点%1命令%2,执行失败").arg(m_point).arg(m_cmdCode);
+        } else {
+            m_errInfo = QString("标定点%1命令%2,执行成功").arg(m_point).arg(m_cmdCode);
+        }
         return true;
     } else {
         return false;
@@ -79,6 +82,7 @@ void CalCcrCmd::recvCmdAckData(quint8 cmd)
 {
     if (cmd == m_cmdCode) {
         m_executeSuccess = true;
+        RecordData::instance()->setCalPoint(m_point);
     } else {
         m_errInfo = QString("获取错误ACK:%1").arg(cmd);
     }

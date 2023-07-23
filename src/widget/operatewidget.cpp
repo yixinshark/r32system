@@ -141,11 +141,15 @@ void OperateWidget::initUI()
 void OperateWidget::initTableWidget()
 {
     QStringList header;
-    header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1" << "标定点2" << "标定点3" << "标定状态"
-           << "标定的零点阻值R0" << "1000PPM的阻值" << "5000PPM的阻值" << "参数P" << "参数P1" << "参数P2" << "温度" << "湿度";
+    header << "传感器ID" << "判定结果" << "ON/OFF" << "软件版本" << "标定点1"
+            << "标定点2" << "标定点3" << "标定状态" << "标定的零点阻值R0" << "1000PPM的阻值"
+            << "5000PPM的阻值" << "参数P" << "参数P1" << "参数P2" << "温度" << "湿度"
+            << "仪器浓度-5000" << "产品浓度-5000" << "仪器浓度-3000" << "产品浓度-3000"
+            << "仪器浓度-1000" << "产品浓度-1000" << "仪器浓度-500" << "产品浓度-500"
+            << "仪器浓度-0" << "产品浓度-0";
 
     m_tableWidget->setColumnCount(header.count());
-    m_tableWidget->setRowCount(m_totalChannel);
+    m_tableWidget->setRowCount(10);
     m_tableWidget->setMinimumHeight(400);
     // 表格不能编辑
     m_tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -221,7 +225,7 @@ QLayout *OperateWidget::initSettingUI()
     });
 
     // TSI值；分析仪浓度数
-    auto *tsiLabel = new QLabel(tr("TSI值："), this);
+    auto *tsiLabel = new QLabel(tr("分析仪值："), this);
     auto *tsiLineEdit = new QLineEdit(this);
     tsiLineEdit->setReadOnly(true);
 
@@ -355,7 +359,7 @@ void OperateWidget::updateTableWidget()
         } else {
             m_tableWidget->setItem(row, 2, new QTableWidgetItem(info.on ? "ON" : "OFF"));
         }
-        m_tableWidget->item(row, 2)->setBackgroundColor(info.on ? Qt::green : Qt::red);
+        m_tableWidget->item(row, 2)->setBackground(info.on ? Qt::green : Qt::red);
 
         // 软件版本
         if (!info.softVersion.isEmpty()) {
@@ -373,7 +377,7 @@ void OperateWidget::updateTableWidget()
             } else {
                 m_tableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(info.point1)));
             }
-            m_tableWidget->item(row, 4)->setBackgroundColor(info.point1Valid ? Qt::green : Qt::red);
+            m_tableWidget->item(row, 4)->setBackground(info.point1Valid ? Qt::green : Qt::red);
         }
 
         // 标定点2
@@ -383,7 +387,7 @@ void OperateWidget::updateTableWidget()
             } else {
                 m_tableWidget->setItem(row, 5, new QTableWidgetItem(QString::number(info.point2)));
             }
-            m_tableWidget->item(row, 5)->setBackgroundColor(info.point2Valid ? Qt::green : Qt::red);
+            m_tableWidget->item(row, 5)->setBackground(info.point2Valid ? Qt::green : Qt::red);
         }
 
         // 标定点3
@@ -393,15 +397,171 @@ void OperateWidget::updateTableWidget()
             } else {
                 m_tableWidget->setItem(row, 6, new QTableWidgetItem(QString::number(info.point3)));
             }
-            m_tableWidget->item(row, 6)->setBackgroundColor(info.point3Valid ? Qt::green : Qt::red);
+            m_tableWidget->item(row, 6)->setBackground(info.point3Valid ? Qt::green : Qt::red);
         }
 
         // 标定状态
         if (m_tableWidget->item(row, 7)) {
-            m_tableWidget->item(row, 7)->setText(info.calStatus ? "成功" : "失败");
+            m_tableWidget->item(row, 7)->setText(info.calStatus);
         } else {
-            m_tableWidget->setItem(row, 7, new QTableWidgetItem(info.calStatus ? "成功" : "失败"));
+            m_tableWidget->setItem(row, 7, new QTableWidgetItem(info.calStatus));
         }
-        m_tableWidget->item(row, 7)->setBackgroundColor(info.calStatus ? Qt::green : Qt::red);
+        m_tableWidget->item(row, 7)->setBackground(info.calStatus == "标定成功" ? Qt::green : Qt::red);
+
+        // 标定的零点阻值R0
+        if (info.R0 > 0) {
+            if (m_tableWidget->item(row, 8)) {
+                m_tableWidget->item(row, 8)->setText(QString::number(info.R0));
+            } else {
+                m_tableWidget->setItem(row, 8, new QTableWidgetItem(QString::number(info.R0)));
+            }
+        }
+
+        // 1000PPM的阻值
+        if (info.R1000 > 0) {
+            if (m_tableWidget->item(row, 9)) {
+                m_tableWidget->item(row, 9)->setText(QString::number(info.R1000));
+            } else {
+                m_tableWidget->setItem(row, 9, new QTableWidgetItem(QString::number(info.R1000)));
+            }
+        }
+
+        // 5000PPM的阻值
+        if (info.R5000 > 0) {
+            if (m_tableWidget->item(row, 10)) {
+                m_tableWidget->item(row, 10)->setText(QString::number(info.R5000));
+            } else {
+                m_tableWidget->setItem(row, 10, new QTableWidgetItem(QString::number(info.R5000)));
+            }
+        }
+
+        // 参数P
+        if (info.p > 0) {
+            if (m_tableWidget->item(row, 11)) {
+                m_tableWidget->item(row, 11)->setText(QString::number(info.p));
+            } else {
+                m_tableWidget->setItem(row, 11, new QTableWidgetItem(QString::number(info.p)));
+            }
+        }
+
+        // 参数P1
+        if (info.p1 > 0) {
+            if (m_tableWidget->item(row, 12)) {
+                m_tableWidget->item(row, 12)->setText(QString::number(info.p1));
+            } else {
+                m_tableWidget->setItem(row, 12, new QTableWidgetItem(QString::number(info.p1)));
+            }
+        }
+
+        // 参数P2
+        if (info.p2 > 0) {
+            if (m_tableWidget->item(row, 13)) {
+                m_tableWidget->item(row, 13)->setText(QString::number(info.p2));
+            } else {
+                m_tableWidget->setItem(row, 13, new QTableWidgetItem(QString::number(info.p2)));
+            }
+        }
+
+        // 温度
+        if (info.temperature > 0) {
+            if (m_tableWidget->item(row, 14)) {
+                m_tableWidget->item(row, 14)->setText(QString::number(info.temperature));
+            } else {
+                m_tableWidget->setItem(row, 14, new QTableWidgetItem(QString::number(info.temperature)));
+            }
+        }
+        // 湿度
+        if (info.humidity > 0) {
+            if (m_tableWidget->item(row, 15)) {
+                m_tableWidget->item(row, 15)->setText(QString::number(info.humidity));
+            } else {
+                m_tableWidget->setItem(row, 15, new QTableWidgetItem(QString::number(info.humidity)));
+            }
+        }
+
+        // 5000浓度
+        if (info.ccr5000 > 0) {
+            if (m_tableWidget->item(row, 16)) {
+                m_tableWidget->item(row, 16)->setText(QString::number(info.ccr5000));
+            } else {
+                m_tableWidget->setItem(row, 16, new QTableWidgetItem(QString::number(info.ccr5000)));
+            }
+        }
+        if (info.r32Ccr5000 > 0) {
+            if (m_tableWidget->item(row, 17)) {
+                m_tableWidget->item(row, 17)->setText(QString::number(info.r32Ccr5000));
+            } else {
+                m_tableWidget->setItem(row, 17, new QTableWidgetItem(QString::number(info.r32Ccr5000)));
+            }
+            m_tableWidget->item(row, 17)->setBackground(info.ccr5000Valid ? Qt::green : Qt::red);
+        }
+
+        // 3000浓度
+        if (info.ccr3000 > 0) {
+            if (m_tableWidget->item(row, 18)) {
+                m_tableWidget->item(row, 18)->setText(QString::number(info.ccr3000));
+            } else {
+                m_tableWidget->setItem(row, 18, new QTableWidgetItem(QString::number(info.ccr3000)));
+            }
+        }
+        if (info.r32Ccr3000 > 0) {
+            if (m_tableWidget->item(row, 19)) {
+                m_tableWidget->item(row, 19)->setText(QString::number(info.r32Ccr3000));
+            } else {
+                m_tableWidget->setItem(row, 19, new QTableWidgetItem(QString::number(info.r32Ccr3000)));
+            }
+            m_tableWidget->item(row, 19)->setBackground(info.ccr3000Valid ? Qt::green : Qt::red);
+        }
+
+        // 1000浓度
+        if (info.ccr1000 > 0) {
+            if (m_tableWidget->item(row, 20)) {
+                m_tableWidget->item(row, 20)->setText(QString::number(info.ccr1000));
+            } else {
+                m_tableWidget->setItem(row, 20, new QTableWidgetItem(QString::number(info.ccr1000)));
+            }
+        }
+        if (info.r32Ccr1000 > 0) {
+            if (m_tableWidget->item(row, 21)) {
+                m_tableWidget->item(row, 21)->setText(QString::number(info.r32Ccr1000));
+            } else {
+                m_tableWidget->setItem(row, 21, new QTableWidgetItem(QString::number(info.r32Ccr1000)));
+            }
+            m_tableWidget->item(row, 21)->setBackground(info.ccr1000Valid ? Qt::green : Qt::red);
+        }
+
+        // 500浓度
+        if (info.ccr500 > 0) {
+            if (m_tableWidget->item(row, 22)) {
+                m_tableWidget->item(row, 22)->setText(QString::number(info.ccr500));
+            } else {
+                m_tableWidget->setItem(row, 22, new QTableWidgetItem(QString::number(info.ccr500)));
+            }
+        }
+        if (info.r32Ccr500 > 0) {
+            if (m_tableWidget->item(row, 23)) {
+                m_tableWidget->item(row, 23)->setText(QString::number(info.r32Ccr500));
+            } else {
+                m_tableWidget->setItem(row, 23, new QTableWidgetItem(QString::number(info.r32Ccr500)));
+            }
+            m_tableWidget->item(row, 23)->setBackground(info.ccr500Valid ? Qt::green : Qt::red);
+        }
+
+        // 0浓度
+        if (info.ccr0 > 0) {
+            if (m_tableWidget->item(row, 24)) {
+                m_tableWidget->item(row, 24)->setText(QString::number(info.ccr0));
+            } else {
+                m_tableWidget->setItem(row, 24, new QTableWidgetItem(QString::number(info.ccr0)));
+            }
+        }
+        if (info.r32Ccr0 > 0) {
+            if (m_tableWidget->item(row, 25)) {
+                m_tableWidget->item(row, 25)->setText(QString::number(info.r32Ccr0));
+            } else {
+                m_tableWidget->setItem(row, 25, new QTableWidgetItem(QString::number(info.r32Ccr0)));
+            }
+            m_tableWidget->item(row, 25)->setBackground(info.ccr0Valid ? Qt::green : Qt::red);
+        }
     }
 }

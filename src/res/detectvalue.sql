@@ -1,21 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sqls namespace="R32Table">
-    <define id="fields">id, serial_number, dateTime, sensor_id, sensor_addr, channel, point, cal_concentration, temperature, humidity, gas_adc, get_concentration</define>
+    <define id="fields">id,dateTime,sensor_id,valid,on_off,soft_version,point1,point2,point3,cal_status,R0,R1000,R5000,p,p1,p2,temperature,humidity,ccr5000,r32Ccr5000,ccr3000,r32Ccr3000,ccr1000,r32Ccr1000,ccr500,r32Ccr500,ccr0,r32Ccr0</define>
 
     <sql id="CreatTable">
         CREATE TABLE r32table (
             id INT IDENTITY(1,1) PRIMARY KEY,
-            serial_number VARCHAR(50),
             dateTime VARCHAR(50),
             sensor_id VARCHAR(50) UNIQUE,
-            sensor_addr VARCHAR(50),
-            channel VARCHAR(50),
-            point INT,
-            cal_concentration FLOAT,
+            valid VARCHAR(50),
+            on_off VARCHAR(50),
+            soft_version VARCHAR(50),
+            point1 INT,
+            point2 INT,
+            point3 INT,
+            cal_status bit,
+            R0 FLOAT,
+            R1000 FLOAT,
+            R5000 FLOAT,
+            p FLOAT,
+            p1 FLOAT,
+            p2 FLOAT,
             temperature FLOAT,
             humidity FLOAT,
-            gas_adc FLOAT,
-            get_concentration FLOAT
+            ccr5000 INT,
+            r32Ccr5000 INT,
+            ccr3000 INT,
+            r32Ccr3000 INT,
+            ccr1000 INT,
+            r32Ccr1000 INT,
+            ccr500 INT,
+            r32Ccr500 INT,
+            ccr0 INT,
+            r32Ccr0 INT
         );
     </sql>
 
@@ -24,16 +40,8 @@
     </sql>
 
     <sql id="insert">
-        INSERT INTO r32table ( serial_number, dateTime, sensor_id, sensor_addr, channel, point, cal_concentration, temperature, humidity, gas_adc, get_concentration)
-        VALUES (:serial_number, :dateTime, :sensor_id, :sensor_addr, :channel, :point, :cal_concentration, :temperature, :humidity, :gas_adc, :get_concentration)
-    </sql>
-
-    <sql id="update">
-        UPDATE r32table SET adc_value = :adc_value, concentration = :concentration WHERE sensor_id = :sensor_id and point = :point
-    </sql>
-
-    <sql id="countBySensorIdAndPoint">
-        SELECT COUNT(*) FROM r32table WHERE sensor_id = '%1' and point = %2
+        INSERT INTO r32table ( dateTime,sensor_id,valid,on_off,soft_version,point1,point2,point3,cal_status,R0,R1000,R5000,p,p1,p2,temperature,humidity,ccr5000,r32Ccr5000,ccr3000,r32Ccr3000,ccr1000,r32Ccr1000,ccr500,r32Ccr500,ccr0,r32Ccr0)
+        VALUES (:dateTime,:sensor_id,:valid,:on_off,:soft_version,:point1,:point2,:point3,:cal_status,:R0,:R1000,:R5000,:p,:p1,:p2,:temperature,:humidity,:ccr5000,:r32Ccr5000,:ccr3000,:r32Ccr3000,:ccr1000,:r32Ccr1000,:ccr500,:r32Ccr500,:ccr0,:r32Ccr0)
     </sql>
 
     <sql id="datasCount">

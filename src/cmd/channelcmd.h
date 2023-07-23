@@ -35,7 +35,6 @@ public:
     void recvCmdAckData(quint8 cmd) override;
 
     void setFromChannel(int channel) { m_fromChannel = channel; }
-    //void setToChannel(int channel) { m_toChannel = channel; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
 
@@ -45,7 +44,6 @@ private:
 
 private:
     int m_fromChannel = 0;
-    //int m_toChannel = 0;
     int m_currentChannel = 0;
     bool m_executeSuccess = false;
     int m_sentCount = 0;

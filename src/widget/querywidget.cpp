@@ -193,31 +193,59 @@ void QueryWidget::exportToExcel(const QString &filename, const QString &startTim
 
     // 写入表头
     QAxObject *cell = worksheet->querySubObject("Cells(int,int)", 1, 1);
-    cell->setProperty("Value", "ID");
-    cell = worksheet->querySubObject("Cells(int,int)", 1, 2);
-    cell->setProperty("Value", "流水号");
-    cell = worksheet->querySubObject("Cells(int,int)", 1, 3);
     cell->setProperty("Value", "时间");
-    cell = worksheet->querySubObject("Cells(int,int)", 1, 4);
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 2);
     cell->setProperty("Value", "传感器ID");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 3);
+    cell->setProperty("Value", "判定结果");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 4);
+    cell->setProperty("Value", "ON/OFF");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 5);
-    cell->setProperty("Value", "传感器地址");
+    cell->setProperty("Value", "软件版本");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 6);
-    cell->setProperty("Value", "通道");
+    cell->setProperty("Value", "标定点1");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 7);
-    cell->setProperty("Value", "点位");
+    cell->setProperty("Value", "标定点2");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 8);
-    cell->setProperty("Value", "标定浓度");
+    cell->setProperty("Value", "标定点3");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 9);
-    cell->setProperty("Value", "温度");
+    cell->setProperty("Value", "标定状态");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 10);
-    cell->setProperty("Value", "湿度");
+    cell->setProperty("Value", "标定的零点阻值R0");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 11);
-    cell->setProperty("Value", "气体ADC");
+    cell->setProperty("Value", "1000PPM的阻值");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 12);
-    cell->setProperty("Value", "获取浓度");
+    cell->setProperty("Value", "5000PPM的阻值");
     cell = worksheet->querySubObject("Cells(int,int)", 1, 13);
-    cell->setProperty("Value", "结果信息");
+    cell->setProperty("Value", "参数p");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 14);
+    cell->setProperty("Value", "参数p1");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 15);
+    cell->setProperty("Value", "参数p2");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 16);
+    cell->setProperty("Value", "温度");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 17);
+    cell->setProperty("Value", "湿度");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 18);
+    cell->setProperty("Value", "仪器浓度-5000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 19);
+    cell->setProperty("Value", "产品浓度-5000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 20);
+    cell->setProperty("Value", "仪器浓度-3000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 21);
+    cell->setProperty("Value", "产品浓度-3000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 22);
+    cell->setProperty("Value", "仪器浓度-1000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 23);
+    cell->setProperty("Value", "产品浓度-1000");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 24);
+    cell->setProperty("Value", "仪器浓度-500");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 25);
+    cell->setProperty("Value", "产品浓度-500");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 26);
+    cell->setProperty("Value", "仪器浓度-0");
+    cell = worksheet->querySubObject("Cells(int,int)", 1, 27);
+    cell->setProperty("Value", "产品浓度-0");
 
     // 写入数据
     for (int row = 0; row < queryModel->rowCount(); ++row) {
@@ -305,16 +333,31 @@ int QueryWidget::canQueryDataCount()
 
 void QueryWidget::setQueryModelHeader()
 {
-    m_queryModel->setHeaderData(0, Qt::Horizontal, "id");
-    m_queryModel->setHeaderData(1, Qt::Horizontal, "流水号");
-    m_queryModel->setHeaderData(2, Qt::Horizontal, "时间");
-    m_queryModel->setHeaderData(3, Qt::Horizontal, "传感器id");
-    m_queryModel->setHeaderData(4, Qt::Horizontal, "传感器地址");
-    m_queryModel->setHeaderData(5, Qt::Horizontal, "通道");
-    m_queryModel->setHeaderData(6, Qt::Horizontal, "点位");
-    m_queryModel->setHeaderData(7, Qt::Horizontal, "标定浓度");
-    m_queryModel->setHeaderData(8, Qt::Horizontal, "温度");
-    m_queryModel->setHeaderData(9, Qt::Horizontal, "湿度");
-    m_queryModel->setHeaderData(10, Qt::Horizontal, "气体ADC");
-    m_queryModel->setHeaderData(11, Qt::Horizontal, "获取浓度");
+    m_queryModel->setHeaderData(0, Qt::Horizontal, "时间");
+    m_queryModel->setHeaderData(1, Qt::Horizontal, "传感器ID");
+    m_queryModel->setHeaderData(2, Qt::Horizontal, "判定结果");
+    m_queryModel->setHeaderData(3, Qt::Horizontal, "ON/OFF");
+    m_queryModel->setHeaderData(4, Qt::Horizontal, "软件版本");
+    m_queryModel->setHeaderData(5, Qt::Horizontal, "标定点1");
+    m_queryModel->setHeaderData(6, Qt::Horizontal, "标定点2");
+    m_queryModel->setHeaderData(7, Qt::Horizontal, "标定点3");
+    m_queryModel->setHeaderData(8, Qt::Horizontal, "标定状态");
+    m_queryModel->setHeaderData(9, Qt::Horizontal, "标定的零点阻值R0");
+    m_queryModel->setHeaderData(10, Qt::Horizontal, "1000PPM的阻值");
+    m_queryModel->setHeaderData(11, Qt::Horizontal, "5000PPM的阻值");
+    m_queryModel->setHeaderData(12, Qt::Horizontal, "参数p");
+    m_queryModel->setHeaderData(13, Qt::Horizontal, "参数p1");
+    m_queryModel->setHeaderData(14, Qt::Horizontal, "参数p2");
+    m_queryModel->setHeaderData(15, Qt::Horizontal, "温度");
+    m_queryModel->setHeaderData(16, Qt::Horizontal, "湿度");
+    m_queryModel->setHeaderData(17, Qt::Horizontal, "仪器浓度-5000");
+    m_queryModel->setHeaderData(18, Qt::Horizontal, "产品浓度-5000");
+    m_queryModel->setHeaderData(19, Qt::Horizontal, "仪器浓度-3000");
+    m_queryModel->setHeaderData(20, Qt::Horizontal, "产品浓度-3000");
+    m_queryModel->setHeaderData(21, Qt::Horizontal, "仪器浓度-1000");
+    m_queryModel->setHeaderData(22, Qt::Horizontal, "产品浓度-1000");
+    m_queryModel->setHeaderData(23, Qt::Horizontal, "仪器浓度-500");
+    m_queryModel->setHeaderData(24, Qt::Horizontal, "产品浓度-500");
+    m_queryModel->setHeaderData(25, Qt::Horizontal, "仪器浓度-0");
+    m_queryModel->setHeaderData(26, Qt::Horizontal, "产品浓度-0");
 }

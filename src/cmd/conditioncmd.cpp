@@ -33,11 +33,16 @@ QString ConditionCmd::cmdInfo()
 
 void ConditionCmd::execute()
 {
-    static bool executed = false;
-    if (!executed) {
-        executed = true;
-        // 开启定时获取当前浓度
-        m_sender->startPeriodTask(true);
+    if (m_enable) {
+        static bool executed = false;
+        if (!executed) {
+            executed = true;
+            // 开启定时获取当前浓度
+            m_sender->startPeriodTask(true);
+        }
+    } else {
+        m_sender->startPeriodTask(false);
+        m_overed = true;
     }
 }
 

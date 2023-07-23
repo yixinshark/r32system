@@ -46,10 +46,8 @@ void ChannelCmd::execute()
 
     if (m_sender) {
         m_sendData = getSendData();
-        m_sender->sendCmdData(m_sendData);
 
-        RecordData::instance()->setCurrentChannel(m_currentChannel);
-        m_currentChannel++;
+        m_sender->sendCmdData(m_sendData);
         m_sentCount++;
     }
 }
@@ -57,6 +55,11 @@ void ChannelCmd::execute()
 bool ChannelCmd::exeOvered()
 {
     if (m_executeSuccess || m_sentCount >= 3) {
+        if(!m_executeSuccess) {
+            m_errInfo = QString("切通道%1命令%2,执行失败").arg(m_currentChannel).arg(m_cmdCode);
+        } else {
+            m_errInfo = QString("切通道%1命令%2,执行成功").arg(m_currentChannel).arg(m_cmdCode);
+        }
         return true;
     } else {
         return false;
@@ -81,7 +84,9 @@ void ChannelCmd::recvAckTimeout()
 void ChannelCmd::recvCmdAckData(quint8 cmd)
 {
     if (cmd == m_cmdCode) {
+        m_currentChannel++;
         m_executeSuccess = true;
+        RecordData::instance()->setCurrentChannel(m_currentChannel);
     } else {
         m_errInfo = QString("获取错误ACK:%1").arg(cmd);
     }

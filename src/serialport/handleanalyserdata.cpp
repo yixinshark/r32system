@@ -201,6 +201,7 @@ void HandleAnalyserData::startPeriodTask(bool enable)
         m_timer->start();
     } else {
         m_timer->stop();
+        RecordData::instance()->clearConcentrationCache();
     }
 }
 

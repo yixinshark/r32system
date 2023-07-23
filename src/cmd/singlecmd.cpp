@@ -44,6 +44,11 @@ void SingleCmd::execute()
 bool SingleCmd::exeOvered()
 {
     if (m_executeSuccess || m_sentCount >= 3) {
+        if (!m_executeSuccess) {
+            m_errInfo = QString("命令%1,执行失败").arg(m_cmdCode);
+        } else {
+            m_errInfo = QString("命令%1,执行成功").arg(m_cmdCode);
+        }
         return true;
     } else {
         return false;

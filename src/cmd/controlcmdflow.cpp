@@ -14,6 +14,7 @@
 #include "analyserconstant.h"
 #include "channelcmd.h"
 #include "calccrcmd.h"
+#include "setaddresscmd.h"
 
 #include <QDebug>
 #include <QVariantMap>
@@ -78,6 +79,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
     currentCmd->recvCmdAckData(cmd);
     if (currentCmd->exeOvered()) {
+        Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
         m_controlCmdFlow.removeFirst();
         delete currentCmd;
 
@@ -97,30 +99,110 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
 void ControlCmdFlow::initCalibrationCmdFlow()
 {
-    //m_controlCmdFlow.append(initSwitchChannel(m_fromChannel));
-    //m_controlCmdFlow.append(initReadSensorAddress());
-    //m_controlCmdFlow.append(initReadFirmwareVersion());
+    // 轮询上电检测
     m_controlCmdFlow.append(initPowerOnDetect());
+    // 等待3分钟
     m_controlCmdFlow.append(initWait3Minutes());
-    m_controlCmdFlow.append(initOperateValve());
-    m_controlCmdFlow.append(initOperateFan());
-    m_controlCmdFlow.append(initWait5000Concentration());
-    m_controlCmdFlow.append(initCloseValve());
-    m_controlCmdFlow.append(initCloseFan());
+    // 加气体，并搅拌
+    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到5000
+    m_controlCmdFlow.append(initWaitConcentration(5100));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始标记浓度1-5000
     m_controlCmdFlow.append(initGasPointCalibration(1, 5000));
-    // TODO 降低浓度
+    // 降低浓度，打开风扇搅拌
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到1000
+    m_controlCmdFlow.append(initWaitConcentration(1050));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始标记浓度2-1000
     m_controlCmdFlow.append(initGasPointCalibration(2, 1000));
-    // TODO 降低浓度
+    // 继续降低浓度
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到0
+    m_controlCmdFlow.append(initWaitConcentration(0));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始标记浓度3-0
     m_controlCmdFlow.append(initGasPointCalibration(3, 0));
+    // 关闭R32分析仪获取数据
+    m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+    // 标定完成
     m_controlCmdFlow.append(initCalibrationOver());
+
+    // TODO 是否要打开箱体
 }
 
 void ControlCmdFlow::initDetectCmdFlow()
 {
-    if (!m_controlCmdFlow.isEmpty())
-        m_controlCmdFlow.clear();
-
-    // TODO: 检测流程
+    // 加气体，并搅拌
+    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到5000
+    m_controlCmdFlow.append(initWaitConcentration(5100));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始获取浓度1-5000
+    m_controlCmdFlow.append(initGetGasConcentration(5000));
+    // 降低浓度，打开风扇搅拌
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到3050
+    m_controlCmdFlow.append(initWaitConcentration(3050));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始获取浓度2-3050
+    m_controlCmdFlow.append(initGetGasConcentration(3000));
+    // 继续降低浓度
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到1050
+    m_controlCmdFlow.append(initWaitConcentration(1050));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始获取浓度3-1050
+    m_controlCmdFlow.append(initGetGasConcentration(1000));
+    // 继续降低浓度
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到4-520
+    m_controlCmdFlow.append(initWaitConcentration(520));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始获取浓度4-520
+    m_controlCmdFlow.append(initGetGasConcentration(500));
+    // 继续降低浓度
+    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    // 等待浓度达到5-0
+    m_controlCmdFlow.append(initWaitConcentration(0));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 1分钟关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+    // 开始获取浓度5-0
+    m_controlCmdFlow.append(initGetGasConcentration(0));
+    // 关闭R32分析仪获取数据
+    m_controlCmdFlow.append(initCloseR32AnaGetGasData());
 }
 
 void ControlCmdFlow::setR32AnaDataHandler(HandleDataBase *handler)
@@ -160,6 +242,7 @@ void ControlCmdFlow::timerTimeout()
     }
 
     if (currentCmd->exeOvered()) {
+        Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
         m_controlCmdFlow.removeFirst();
         delete currentCmd;
 
@@ -221,9 +304,12 @@ BaseCmd *ControlCmdFlow::initPowerOnDetect()
     channelCmd->setCmdCode(MCU_CMD_CHANNEL);
     compoundCmd->addCmd(channelCmd);
 
-    // 读取地址
-    auto *readAddressCmd = initReadSensorAddress();
-    compoundCmd->addCmd(readAddressCmd);
+    // 设置地址
+    auto *singleCmd = new SetAddressCmd();
+    singleCmd->setFromChannel(m_fromChannel);
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_01);
+    compoundCmd->addCmd(singleCmd);
 
     // 读取固件版本
     auto *readFirmwareVersionCmd = initReadFirmwareVersion();
@@ -281,7 +367,7 @@ BaseCmd *ControlCmdFlow::initWait3Minutes()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initOperateValve()
+BaseCmd *ControlCmdFlow::initOperateValve(bool open1, bool open2, bool open3, bool open4)
 {
     auto *cmd = new SingleCmd();
     cmd->setSender(m_mcuDataHandler);
@@ -301,11 +387,13 @@ BaseCmd *ControlCmdFlow::initOperateValve()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initOperateFan()
+BaseCmd *ControlCmdFlow::initOperateFan(bool open1, bool open2, bool open3, bool open4, int waitSecs)
 {
     auto *cmd = new SingleCmd();
     cmd->setSender(m_mcuDataHandler);
     cmd->setCmdCode(MCU_CMD_FAN);
+    if (waitSecs > 0)
+        cmd->setWaitSecs(waitSecs);
 
     QByteArray data; // TODO: 风扇控制命令
     data.append((char)0x01); // 打开1号风扇
@@ -320,10 +408,10 @@ BaseCmd *ControlCmdFlow::initOperateFan()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initWait5000Concentration()
+BaseCmd *ControlCmdFlow::initWaitConcentration(int point)
 {
     auto *cmd = new ConditionCmd();
-    cmd->setCondition(5100);
+    cmd->setCondition(point);
     cmd->setWaitSecs(2);
     cmd->setSender(m_r32AnaDataHandler);
     cmd->setCmdCode(ANALYSER_CMD);
@@ -395,6 +483,16 @@ BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
     return cmd;
 }
 
+BaseCmd *ControlCmdFlow::initCloseR32AnaGetGasData()
+{
+    auto *cmd = new ConditionCmd();
+    cmd->setEnable(false);
+    cmd->setSender(m_r32AnaDataHandler);
+    cmd->setCmdCode(ANALYSER_CMD);
+
+    return cmd;
+}
+
 BaseCmd *ControlCmdFlow::initMarkConcentration(int point)
 {
     auto *singleCmd = new CalCcrCmd();
@@ -426,6 +524,8 @@ BaseCmd *ControlCmdFlow::initReadResistance(int concentration)
 BaseCmd *ControlCmdFlow::initCalibrationOver()
 {
     auto *compoundCmd = new CompoundCmd();
+    compoundCmd->setLoopCount(m_totalChannel);
+    compoundCmd->setBeginLoopIndex(m_fromChannel);
 
     // 先切通道
     auto *cmd = new ChannelCmd();
@@ -438,13 +538,71 @@ BaseCmd *ControlCmdFlow::initCalibrationOver()
     auto *singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
     singleCmd->setCmdCode(CMD_02);
-    // TODO setSendData
+    QVariantMap info;
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_02, info));
+    compoundCmd->addCmd(singleCmd);
 
     // 再查询标定状态
     singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
     singleCmd->setCmdCode(CMD_ND_STATUS_03);
-    // TODO setSendData
+    info.clear();
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_ND_STATUS_03, info));
+    compoundCmd->addCmd(singleCmd);
+
+    // 读取p,p1,p2,温湿度参数 TODO 协议变了
+    singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_READ_PARAM1_05);
+    info.clear();
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARAM1_05, info));
+    compoundCmd->addCmd(singleCmd);
+
+    singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_READ_PARAM2_06);
+    info.clear();
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_PARAM2_06, info));
+    compoundCmd->addCmd(singleCmd);
+
+    singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_READ_1000PPM_07);
+    info.clear();
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_1000PPM_07, info));
+    compoundCmd->addCmd(singleCmd);
+
+    singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_READ_TEMP_HUM_21);
+    info.clear();
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_TEMP_HUM_21, info));
+    compoundCmd->addCmd(singleCmd);
+
+    return compoundCmd;
+}
+
+BaseCmd *ControlCmdFlow::initGetGasConcentration(int concentration)
+{
+    auto *compoundCmd = new CompoundCmd();
+    compoundCmd->setLoopCount(m_totalChannel);
+    compoundCmd->setBeginLoopIndex(m_fromChannel);
+
+    // 先切通道
+    auto *cmd = new ChannelCmd();
+    cmd->setFromChannel(m_fromChannel);
+    cmd->setSender(m_mcuDataHandler);
+    cmd->setCmdCode(MCU_CMD_CHANNEL);
+    compoundCmd->addCmd(cmd);
+
+    // 获取气体浓度
+    auto *singleCmd = new SingleCmd();
+    singleCmd->setSender(m_r32DataHandler);
+    singleCmd->setCmdCode(CMD_READ_GAS_CONCENTRATION_25);
+    QVariantMap info;
+    info.insert(GAS_CONCENTRATION, concentration);
+    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_GAS_CONCENTRATION_25, info));
+    compoundCmd->addCmd(singleCmd);
 
     return compoundCmd;
 }

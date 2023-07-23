@@ -62,6 +62,8 @@ const QString SEND_CAL_CONCENTRATION = "cal_concentration";
 const QString SEND_PRINT_ENABLE = "print_enable";
 // 报警阈值
 const QString SEND_ALARM_THRESHOLD = "alarm_threshold";
+// 气体浓度
+const QString GAS_CONCENTRATION = "gas_concentration";
 
 // --------------------------ack--------------------------------
 const QString ACK_RESULT = "result";

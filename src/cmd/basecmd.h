@@ -40,7 +40,7 @@ public:
     // 命令执行错误信息
     virtual QString exeErrInfo() = 0;
     // 接收命令回执
-    virtual void recvCmdAckData(quint8 cmdCode) = 0;
+    virtual void recvCmdAckData(quint8 cmdCode) = 0; // TODO 是否要执行的状态
 
 protected:
     CmdType m_cmdType;
