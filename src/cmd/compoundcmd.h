@@ -45,8 +45,8 @@ public:
     void addCmd(BaseCmd *cmd) { m_cmdQueue.enqueue(cmd); }
 
 private:
-    int m_loopCount = 1;    // 执行多少轮回
-    int m_loopIndex = 1;    // 当前执行第几轮回
+    int m_loopCount = 0;    // 执行多少轮回
+    int m_loopIndex = 0;    // 当前执行第几轮回
     bool m_overed = false;  // 命令是否执行完毕
 
     QQueue<BaseCmd *> m_cmdQueue;

@@ -57,6 +57,7 @@ bool CalCcrCmd::exeOvered()
         } else {
             m_errInfo = QString("标定点%1命令%2,执行成功").arg(m_point).arg(m_cmdCode);
         }
+        m_sentCount = 0;
         return true;
     } else {
         return false;

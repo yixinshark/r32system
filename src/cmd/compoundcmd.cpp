@@ -38,10 +38,15 @@ int CompoundCmd::waitSecs()
 QString CompoundCmd::cmdInfo()
 {
     QString info;
-    info = QString("通道%1: ").arg(m_loopIndex-1);
+    info = QString("通道%1: ").arg(m_loopIndex);
 
     if (m_curCmd)
         info += m_curCmd->cmdInfo();
+    else {
+        auto *cmd = m_cmdQueue.first();
+        if (cmd)
+            info += cmd->cmdInfo();
+    }
 
     return info;
 }
@@ -50,26 +55,29 @@ void CompoundCmd::execute()
 {
     if (m_curCmd) {
         m_curCmd->execute();
+    } else {
+       if (!m_cmdQueue.isEmpty()) {
+          m_curCmd = m_cmdQueue.dequeue();
+          m_curCmd->execute();
+          m_cmdQueueBak.enqueue(m_curCmd);
+       }
+    }
+
+    if (m_curCmd->exeOvered()) {
+        m_curCmd = nullptr;
+    } else {
         return;
     }
 
-    auto *cmd = m_cmdQueue.dequeue();
-    if (cmd) {
-        m_curCmd = cmd;
-        cmd->execute();
-    }
-
-    m_cmdQueueBak.enqueue(cmd);
-
     if (m_cmdQueue.isEmpty()) {
-        m_loopIndex++;
-
         if (m_loopIndex >= m_loopCount) {
             m_overed = true;
         } else {
             m_cmdQueue = m_cmdQueueBak;
             m_cmdQueueBak.clear();
         }
+
+        m_loopIndex++;
     }
 }
 
@@ -93,10 +101,10 @@ void CompoundCmd::recvCmdAckData(quint8 cmdCode)
     if (m_curCmd)
         m_curCmd->recvCmdAckData(cmdCode);
 
-    if (m_curCmd->exeOvered()) {
-        m_curCmd = nullptr;
-        execute();
-    }
+//    if (m_curCmd->exeOvered()) {
+//        m_curCmd = nullptr;
+//        execute();
+//    }
 }
 
 void CompoundCmd::recvAckTimeout()
@@ -104,8 +112,8 @@ void CompoundCmd::recvAckTimeout()
     if (m_curCmd)
         m_curCmd->recvAckTimeout();
 
-    if (m_curCmd->exeOvered()) {
-        m_curCmd = nullptr;
-        execute();
-    }
+//    if (m_curCmd->exeOvered()) {
+//        m_curCmd = nullptr;
+//        execute();
+//    }
 }

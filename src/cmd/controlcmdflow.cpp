@@ -85,8 +85,8 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
         executeCmdFlow();
     } else {
-        currentCmd->execute();
         Q_EMIT cmdexecuted(currentCmd->cmdInfo());
+        currentCmd->execute();
     }
 
     if (m_controlCmdFlow.isEmpty()) {
@@ -248,8 +248,8 @@ void ControlCmdFlow::timerTimeout()
 
         executeCmdFlow();
     } else {
-        currentCmd->execute();
         Q_EMIT cmdexecuted(currentCmd->cmdInfo());
+        currentCmd->execute();
     }
 
     if (m_controlCmdFlow.isEmpty()) {
@@ -274,8 +274,8 @@ void ControlCmdFlow::executeCmdFlow()
         }
 
         if (cmd->waitSecs() == 0) {
+            Q_EMIT cmdexecuted(cmd->cmdInfo());
             cmd->execute();
-            Q_EMIT cmdexecuted(m_controlCmdFlow.first()->cmdInfo());
         }
 
         int waitSecs = cmd->waitSecs() ? cmd->waitSecs() * 1000 : 200;
@@ -283,7 +283,7 @@ void ControlCmdFlow::executeCmdFlow()
         m_timer->setInterval(waitSecs);
         m_timer->start();
         if (cmd->waitSecs() > 0) {
-            Q_EMIT cmdexecuted(m_controlCmdFlow.first()->cmdInfo());
+            Q_EMIT cmdexecuted(cmd->cmdInfo());
         }
     } else {
         if (m_timer->isActive())

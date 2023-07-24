@@ -49,6 +49,7 @@ bool SingleCmd::exeOvered()
         } else {
             m_errInfo = QString("命令%1,执行成功").arg(m_cmdCode);
         }
+        m_sentCount = 0;
         return true;
     } else {
         return false;

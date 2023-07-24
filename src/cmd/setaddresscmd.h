@@ -36,6 +36,7 @@ public:
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
     void setFromChannel(int channel) { m_fromChannel = channel; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
+    QByteArray getSendData(int channel);
 
 private:
     int m_fromChannel = 0;

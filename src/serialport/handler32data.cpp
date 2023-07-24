@@ -502,7 +502,7 @@ void Handler32data::addContent(char cmd, const QVariantMap &info, QByteArray &da
     };
 
     data.append(SEND_HEADER);
-    data.append(m_address);
+    data.append(m_address == 0x00 ? RecordData::instance()->getcurrentChanel() : m_address);
     data.append(cmd);
     switch (cmd) {
         case CMD_01: {
@@ -631,11 +631,11 @@ bool Handler32data::addCmd_set_address_Content(const QVariantMap &info, QByteArr
         return false;
     }
 
-    m_address = static_cast<char>(info.value(SET_MODULE_ADDRESS).toUInt());
+    m_address = info.value(SET_MODULE_ADDRESS).toInt();
     m_isSetAddress = true;
     // 修改i地址字节，添加设置地址数据
     data[1] = 0x00;
-    data.append(static_cast<char>(info.value(SET_MODULE_ADDRESS).toUInt()));
+    data.append(static_cast<char>(info.value(SET_MODULE_ADDRESS).toInt()));
 
     // 添加3字节 0x00
     char noneByte = 0x00;

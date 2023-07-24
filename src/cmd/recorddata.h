@@ -85,6 +85,7 @@ public:
     // 获取当前分析仪浓度值
     int getCurrentConcentration() const;
 
+    int getcurrentChanel() const { return m_currentChanel; }
     void setCurrentChannel(int channel) { m_currentChanel = channel; }
     void setModuleAddress(int addr);
     void setFirmwareVersion(const QString &version);

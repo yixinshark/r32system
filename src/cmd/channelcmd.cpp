@@ -30,8 +30,8 @@ QString ChannelCmd::cmdInfo()
     QString info;
     if (m_sender)
         info = QString("发送到:%1").arg(m_sender->senderName());
-    info += " 通道:" + QString::number(m_currentChannel);
-    info += " 内容:" + m_sendData.toHex();
+    info += " 切通道:" + QString::number(m_currentChannel == 0 ? m_fromChannel : m_currentChannel);
+    info += " 内容:" + getSendData().toHex();
 
     return info;
 }
@@ -60,6 +60,8 @@ bool ChannelCmd::exeOvered()
         } else {
             m_errInfo = QString("切通道%1命令%2,执行成功").arg(m_currentChannel).arg(m_cmdCode);
         }
+        m_currentChannel++;
+        m_sentCount = 0;
         return true;
     } else {
         return false;
@@ -84,7 +86,6 @@ void ChannelCmd::recvAckTimeout()
 void ChannelCmd::recvCmdAckData(quint8 cmd)
 {
     if (cmd == m_cmdCode) {
-        m_currentChannel++;
         m_executeSuccess = true;
         RecordData::instance()->setCurrentChannel(m_currentChannel);
     } else {
@@ -99,7 +100,7 @@ QByteArray ChannelCmd::getSendData() const
     data.append( 0x61);
     data.append(static_cast<char>(m_cmdCode));
 
-    data.append(static_cast<char>(m_currentChannel));
+    data.append(static_cast<char>(m_currentChannel == 0 ? m_fromChannel : m_currentChannel));
     data.append(static_cast<char>(0x00));
     data.append(static_cast<char>(0x00));
     data.append(static_cast<char>(0x00));

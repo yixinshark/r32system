@@ -207,6 +207,12 @@ QLayout *OperateWidget::initSettingUI()
     toLineEdit->setReadOnly(true);
     toLineEdit->setText("64"); // 默认值
 
+    // 设置默认值
+    m_fromChannel = fromComboBox->currentText().toInt();
+    m_totalChannel = spinBox->value();
+    m_controlCmdFlow->setFromChannel(m_fromChannel);
+    m_controlCmdFlow->setTotalChannel(m_totalChannel);
+
     connect(fromComboBox, &QComboBox::currentTextChanged,
             this, [this, fromComboBox, spinBox, toLineEdit]{
         int from = fromComboBox->currentText().toInt();
