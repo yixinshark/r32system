@@ -40,6 +40,8 @@ private:
 
 private:
     void updateTableWidget();
+    // 数据同步到数据库
+    void syncDataToDB();
 
 private:
     // r32传感器串口连接
