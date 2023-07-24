@@ -75,6 +75,7 @@ public:
 public:
     void reset();
     void clearConcentrationCache();
+    bool hasData() const;
 
     int recordDataCount() const;
     bool hasChannel(int channel) const;

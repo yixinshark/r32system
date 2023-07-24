@@ -278,3 +278,8 @@ void RecordData::setP2Value(float p2)
         qWarning() << "RecordData::setP2Value: channel" << m_currentChanel << "not exists";
     }
 }
+
+bool RecordData::hasData() const
+{
+    return !m_recordData.isEmpty();
+}

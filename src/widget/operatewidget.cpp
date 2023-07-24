@@ -10,6 +10,7 @@
 #include "connectwidget.h"
 #include "controlcmdflow.h"
 #include "recorddata.h"
+#include "r32recordvalue.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -293,6 +294,29 @@ QLayout *OperateWidget::initBtnsUI()
         }
     });
 
+    connect(saveBtn, &QPushButton::clicked, this, [this] {
+        bool hasData = RecordData::instance()->hasData();
+        if (!hasData) {
+            QMessageBox::warning(this, tr("警告"), tr("没有数据需要保存"), QMessageBox::Ok);
+            return;
+        }
+
+        // 询问是否保存
+        if (QMessageBox::question(this, tr("提示"), tr("是否保存当前数据？"), QMessageBox::Yes | QMessageBox::No)
+            == QMessageBox::Yes) {
+            syncDataToDB();
+        }
+    });
+
+    connect(clearBtn, &QPushButton::clicked, this, [this] {
+        // 询问是否清空
+        if (QMessageBox::question(this, tr("提示"), tr("是否清空当前数据？"), QMessageBox::Yes | QMessageBox::No)
+            == QMessageBox::Yes) {
+            RecordData::instance()->clearConcentrationCache();
+            m_tableWidget->clearContents();
+        }
+    });
+
     auto *btnLayout = new QHBoxLayout();
     btnLayout->addStretch();
     btnLayout->addWidget(m_startBtn);
@@ -563,5 +587,13 @@ void OperateWidget::updateTableWidget()
             }
             m_tableWidget->item(row, 25)->setBackground(info.ccr0Valid ? Qt::green : Qt::red);
         }
+    }
+}
+
+void OperateWidget::syncDataToDB()
+{
+    for (int i = m_fromChannel; i <= m_totalChannel; i++) {
+        const R32Info &info = RecordData::instance()->getR32Info(i);
+        R32RecordValueDao::insert(info);
     }
 }
