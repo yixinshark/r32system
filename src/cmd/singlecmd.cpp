@@ -25,7 +25,7 @@ QString SingleCmd::cmdInfo()
     QString info;
     if (m_sender)
         info = QString("发送到:%1").arg(m_sender->senderName());
-    info += " 命令码:" + QString::number(m_cmdCode);
+    info += " 命令码:0x" + QString::number(m_cmdCode, 16);
     info += " 内容:" + m_sendData.toHex();
 
     return info;
@@ -45,9 +45,9 @@ bool SingleCmd::exeOvered()
 {
     if (m_executeSuccess || m_sentCount >= 3) {
         if (!m_executeSuccess) {
-            m_errInfo = QString("命令%1,执行失败").arg(m_cmdCode);
+            m_errInfo = QString("命令0x%1,执行失败").arg(QString::number(m_cmdCode, 16));
         } else {
-            m_errInfo = QString("命令%1,执行成功").arg(m_cmdCode);
+            m_errInfo = QString("命令0x%1,执行成功").arg(QString::number(m_cmdCode,16));
         }
         m_sentCount = 0;
         return true;
@@ -71,7 +71,7 @@ void SingleCmd::recvCmdAckData(quint8 cmdCode)
     if (cmdCode == m_cmdCode) {
         m_executeSuccess = true;
     } else {
-        m_errInfo = QString("获取错误ACK:%1").arg(cmdCode);
+        m_errInfo = QString("获取错误ACK:0x%1").arg(QString::number(cmdCode, 16));
     }
 }
 
@@ -82,5 +82,7 @@ void SingleCmd::setSendData(const QByteArray &data)
 
 void SingleCmd::recvAckTimeout()
 {
-    m_errInfo = QString("%1命令%2,执行超时").arg(m_sender->senderName()).arg(m_cmdCode);
+    m_errInfo = QString("%1命令0x%2,执行超时").arg(m_sender->senderName()).arg(QString::number(m_cmdCode, 16));
+    // 超时后，等待时间清零
+    m_waitSecs = 0;
 }

@@ -28,6 +28,9 @@ int CompoundCmd::waitSecs()
     if (m_curCmd)
         return m_curCmd->waitSecs();
 
+    if (m_cmdQueue.isEmpty())
+        return 0;
+
     auto *cmd = m_cmdQueue.first();
     if (cmd)
         return cmd->waitSecs();
@@ -62,23 +65,6 @@ void CompoundCmd::execute()
           m_cmdQueueBak.enqueue(m_curCmd);
        }
     }
-
-    if (m_curCmd->exeOvered()) {
-        m_curCmd = nullptr;
-    } else {
-        return;
-    }
-
-    if (m_cmdQueue.isEmpty()) {
-        if (m_loopIndex >= m_loopCount) {
-            m_overed = true;
-        } else {
-            m_cmdQueue = m_cmdQueueBak;
-            m_cmdQueueBak.clear();
-        }
-
-        m_loopIndex++;
-    }
 }
 
 bool CompoundCmd::exeOvered()
@@ -93,27 +79,52 @@ bool CompoundCmd::exeSuccess()
 
 QString CompoundCmd::exeErrInfo()
 {
+    if (m_curCmd)
+        return m_curCmd->exeErrInfo();
+
     return QString();
 }
 
 void CompoundCmd::recvCmdAckData(quint8 cmdCode)
 {
-    if (m_curCmd)
-        m_curCmd->recvCmdAckData(cmdCode);
+    if (!m_curCmd)
+        return;
 
-//    if (m_curCmd->exeOvered()) {
-//        m_curCmd = nullptr;
-//        execute();
-//    }
+    m_curCmd->recvCmdAckData(cmdCode);
+    if (m_curCmd->exeOvered()) {
+        m_curCmd = nullptr;
+
+        if (m_cmdQueue.isEmpty()) {
+            if (m_loopIndex >= m_loopCount) {
+                m_overed = true;
+            } else {
+                m_cmdQueue = m_cmdQueueBak;
+                m_cmdQueueBak.clear();
+            }
+
+            m_loopIndex++;
+        }
+    }
 }
 
 void CompoundCmd::recvAckTimeout()
 {
-    if (m_curCmd)
-        m_curCmd->recvAckTimeout();
+    if (!m_curCmd)
+        return;
 
-//    if (m_curCmd->exeOvered()) {
-//        m_curCmd = nullptr;
-//        execute();
-//    }
+    m_curCmd->recvAckTimeout();
+    if (m_curCmd->exeOvered()) {
+        m_curCmd = nullptr;
+
+        if (m_cmdQueue.isEmpty()) {
+            if (m_loopIndex >= m_loopCount) {
+                m_overed = true;
+            } else {
+                m_cmdQueue = m_cmdQueueBak;
+                m_cmdQueueBak.clear();
+            }
+
+            m_loopIndex++;
+        }
+    }
 }

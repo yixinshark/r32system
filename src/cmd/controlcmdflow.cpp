@@ -82,19 +82,9 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
         Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
         m_controlCmdFlow.removeFirst();
         delete currentCmd;
-
-        executeCmdFlow();
-    } else {
-        Q_EMIT cmdexecuted(currentCmd->cmdInfo());
-        currentCmd->execute();
     }
 
-    if (m_controlCmdFlow.isEmpty()) {
-        if (m_timer->isActive())
-            m_timer->stop();
-
-        Q_EMIT exceuteOvered();
-    }
+    executeCmdFlow();
 }
 
 void ControlCmdFlow::initCalibrationCmdFlow()
@@ -239,34 +229,28 @@ void ControlCmdFlow::timerTimeout()
     if (!errorInfo.isEmpty()) {
         qWarning() << errorInfo;
         Q_EMIT cmdexecuted(errorInfo);
+    } else {
+        Q_EMIT cmdexecuted("命令执行超时!");
+        qWarning() << "currentCmd is timeout";
     }
 
     if (currentCmd->exeOvered()) {
-        Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
+        if (!currentCmd->exeErrInfo().isEmpty())
+            Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
         m_controlCmdFlow.removeFirst();
         delete currentCmd;
-
-        executeCmdFlow();
-    } else {
-        Q_EMIT cmdexecuted(currentCmd->cmdInfo());
-        currentCmd->execute();
     }
 
-    if (m_controlCmdFlow.isEmpty()) {
-        if (m_timer->isActive())
-            m_timer->stop();
-
-        Q_EMIT exceuteOvered();
-    }
+    executeCmdFlow();
 }
 
 void ControlCmdFlow::executeCmdFlow()
 {
-    if (!m_controlCmdFlow.isEmpty()) {
-        if (m_timer->isActive()) {
-            m_timer->stop();
-        }
+    if (m_timer->isActive()) {
+        m_timer->stop();
+    }
 
+    if (!m_controlCmdFlow.isEmpty()) {
         auto cmd = m_controlCmdFlow.first();
         if (!cmd) {
             qWarning() << "cmd is null";
@@ -279,15 +263,14 @@ void ControlCmdFlow::executeCmdFlow()
         }
 
         int waitSecs = cmd->waitSecs() ? cmd->waitSecs() * 1000 : 200;
-        qInfo() << "executeCmdFlow() wait" << waitSecs << "seconds";
+        // qInfo() << "executeCmdFlow() wait" << waitSecs << "ms";
         m_timer->setInterval(waitSecs);
         m_timer->start();
         if (cmd->waitSecs() > 0) {
             Q_EMIT cmdexecuted(cmd->cmdInfo());
         }
     } else {
-        if (m_timer->isActive())
-            m_timer->stop();
+        Q_EMIT exceuteOvered();
     }
 }
 
@@ -374,10 +357,10 @@ BaseCmd *ControlCmdFlow::initOperateValve(bool open1, bool open2, bool open3, bo
     cmd->setCmdCode(MCU_CMD_VALVE);
 
     QByteArray data;
-    data.append((char)0x00); // 打开1号电磁阀，即关闭箱体
-    data.append((char)0x01); // 打开2号电磁阀，R32加气阀
-    data.append((char)0x00); // 关闭3号电磁阀，空气进气阀
-    data.append((char)0x01); // 打开4号电磁阀，箱体出气口
+    data.append(open1 ? (char)0x01 : (char)0x00); // 打开1号电磁阀，即关闭箱体
+    data.append(open2 ? (char)0x01 : (char)0x00); // 打开2号电磁阀，R32加气阀
+    data.append(open3 ? (char)0x01 : (char)0x00); // 关闭3号电磁阀，空气进气阀
+    data.append(open4 ? (char)0x01 : (char)0x00); // 打开4号电磁阀，箱体出气口
     data.append((char)0x00);
 
     QVariantMap info;
@@ -396,10 +379,10 @@ BaseCmd *ControlCmdFlow::initOperateFan(bool open1, bool open2, bool open3, bool
         cmd->setWaitSecs(waitSecs);
 
     QByteArray data; // TODO: 风扇控制命令
-    data.append((char)0x01); // 打开1号风扇
-    data.append((char)0x01); // 打开2号风扇
-    data.append((char)0x01); // 打开3号风扇
-    data.append((char)0x01); // 打开4号风扇
+    data.append(open1 ? (char)0x01 : (char)0x00); // 打开1号风扇
+    data.append(open2 ? (char)0x01 : (char)0x00); // 打开2号风扇
+    data.append(open3 ? (char)0x01 : (char)0x00); // 打开3号风扇
+    data.append(open4 ? (char)0x01 : (char)0x00); // 打开4号风扇
 
     QVariantMap info;
     info.insert(MCU_FAN, data);
