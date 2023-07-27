@@ -11,6 +11,8 @@
 #include "controlcmdflow.h"
 #include "recorddata.h"
 #include "r32recordvalue.h"
+#include "validationdialog.h"
+#include "pointsettingdialog.h"
 
 #include <QLabel>
 #include <QGroupBox>
@@ -24,6 +26,7 @@
 #include <QTextEdit>
 #include <QTableWidget>
 #include <QMessageBox>
+#include <QDebug>
 
 OperateWidget::OperateWidget(QWidget *parent)
     : QWidget(parent)
@@ -258,13 +261,57 @@ QLayout *OperateWidget::initCalibrationUI()
 {
     QFont font;
     font.setPixelSize(16);
-    auto *label3 = new QLabel(tr("标定点位个数：(1-0,2-1000,3-5000)"), this);
+    auto *label3 = new QLabel(tr("标定点位个数：(1-5000,2-1000,3-0)"), this);
     label3->setFont(font);
     label3->setMinimumHeight(30);
-    auto *label4 = new QLabel(tr("检测点位个数：(1-0,2-1000,3-2000,4-3000,5-5000)"), this);
+    auto *label4 = new QLabel(tr("检测点位个数：(1-5000,2-3000,3-2000,4-1000,5-0)"), this);
     label4->setFont(font);
     label4->setMinimumHeight(30);
     auto *settingBtn = new QPushButton(tr("设置"), this);
+    connect(settingBtn, &QPushButton::clicked, this, [label3, label4, this]{
+        // 校验用户
+        ValidationDialog dialog(this);
+        if (dialog.exec() != QDialog::Accepted) {
+            return;
+        }
+
+        // 弹出设置对话框
+        PointSettingDialog pointDialog(this);
+        if (pointDialog.exec() == QDialog::Accepted) {
+
+            QVector<int> calibrationValues = pointDialog.getCalibrationValues();
+            QVector<int> detectionValues = pointDialog.getDetectValues();
+            qInfo() << "calibrationValues: " << calibrationValues << " detectionValues: " << detectionValues;
+
+            // 显示用户设置的参数到lable3和label4
+            QString calibrationStr;
+            for (int i = 0; i < calibrationValues.count(); ++i) {
+                calibrationStr += QString("%1-%2,").arg(i + 1).arg(calibrationValues.at(i));
+            }
+            calibrationStr.chop(1);
+            label3->setText(tr("标定点位个数：(%1)").arg(calibrationStr));
+
+            QString detectionStr;
+            for (int i = 0; i < detectionValues.count(); ++i) {
+                detectionStr += QString("%1-%2,").arg(i + 1).arg(detectionValues.at(i));
+            }
+            detectionStr.chop(1);
+            label4->setText(tr("检测点位个数：(%1)").arg(detectionStr));
+
+            // 设置标定点位和检测点位
+            m_controlCmdFlow->setCalibrationValues(pointDialog.getCalibrationValues());
+            m_controlCmdFlow->setDetectionValues(pointDialog.getDetectValues());
+        }
+    });
+
+    // 标定点位默认值
+    QVector<int> calibrationValues;
+    calibrationValues << 5000 << 1000 << 0;
+    m_controlCmdFlow->setCalibrationValues(calibrationValues);
+    // 检测点位默认值
+    QVector<int> detectionValues;
+    detectionValues << 5000 << 3000 << 2000 << 1000 << 0;
+    m_controlCmdFlow->setDetectionValues(detectionValues);
 
     auto *hLayout = new QHBoxLayout();
     hLayout->setSpacing(26);

@@ -29,6 +29,8 @@ public:
     void stop();
     void recvAck(char cmd, const QVariantMap &info);
 
+    void setCalibrationValues(const QVector<int> &values) { m_calibrationValues = values; }
+    void setDetectionValues(const QVector<int> &values) { m_detectionValues = values; }
     void setFromChannel(int channel) { m_fromChannel = channel; }
     void setTotalChannel(int channel) { m_totalChannel = channel; }
     void setCalibrationMode(bool mode) { m_calibrationMode = mode; }
@@ -102,6 +104,9 @@ private:
 private:
     // 命令控制流
     QList<BaseCmd *> m_controlCmdFlow;
+
+    QVector<int> m_calibrationValues;
+    QVector<int> m_detectionValues;
 };
 
 #endif //R32SYSTEM_CONTROLCMDFLOW_H

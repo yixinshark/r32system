@@ -79,7 +79,8 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
     currentCmd->recvCmdAckData(cmd);
     if (currentCmd->exeOvered()) {
-        Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
+        if(!currentCmd->exeErrInfo().isEmpty())
+            Q_EMIT cmdexecuted(currentCmd->exeErrInfo());
         m_controlCmdFlow.removeFirst();
         delete currentCmd;
     }
@@ -96,36 +97,22 @@ void ControlCmdFlow::initCalibrationCmdFlow()
     // 加气体，并搅拌
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到5000
-    m_controlCmdFlow.append(initWaitConcentration(5100));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始标记浓度1-5000
-    m_controlCmdFlow.append(initGasPointCalibration(1, 5000));
-    // 降低浓度，打开风扇搅拌
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到1000
-    m_controlCmdFlow.append(initWaitConcentration(1050));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始标记浓度2-1000
-    m_controlCmdFlow.append(initGasPointCalibration(2, 1000));
-    // 继续降低浓度
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到0
-    m_controlCmdFlow.append(initWaitConcentration(0));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始标记浓度3-0
-    m_controlCmdFlow.append(initGasPointCalibration(3, 0));
+
+    for (int i = 0; i < m_calibrationValues.count(); i++) {
+        int waitValue = m_calibrationValues.at(i) > 0 ? m_calibrationValues.at(i) + 100 : 0;
+        // 等待浓度达到标定点1
+        m_controlCmdFlow.append(initWaitConcentration(waitValue));
+        // 关闭气体进入,关闭所有电磁阀
+        m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+        // 1分钟关闭风扇
+        m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+        // 开始标记浓度1
+        m_controlCmdFlow.append(initGasPointCalibration(i + 1, m_calibrationValues.at(i)));
+        // 降低浓度，打开风扇搅拌
+        m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+        m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    }
+
     // 关闭R32分析仪获取数据
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
     // 标定完成
@@ -139,58 +126,22 @@ void ControlCmdFlow::initDetectCmdFlow()
     // 加气体，并搅拌
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到5000
-    m_controlCmdFlow.append(initWaitConcentration(5100));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始获取浓度1-5000
-    m_controlCmdFlow.append(initGetGasConcentration(5000));
-    // 降低浓度，打开风扇搅拌
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到3050
-    m_controlCmdFlow.append(initWaitConcentration(3050));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始获取浓度2-3050
-    m_controlCmdFlow.append(initGetGasConcentration(3000));
-    // 继续降低浓度
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到1050
-    m_controlCmdFlow.append(initWaitConcentration(1050));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始获取浓度3-1050
-    m_controlCmdFlow.append(initGetGasConcentration(1000));
-    // 继续降低浓度
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到4-520
-    m_controlCmdFlow.append(initWaitConcentration(520));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始获取浓度4-520
-    m_controlCmdFlow.append(initGetGasConcentration(500));
-    // 继续降低浓度
-    m_controlCmdFlow.append(initOperateValve(false, false, true, true));
-    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
-    // 等待浓度达到5-0
-    m_controlCmdFlow.append(initWaitConcentration(0));
-    // 关闭气体进入,关闭所有电磁阀
-    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 1分钟关闭风扇
-    m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
-    // 开始获取浓度5-0
-    m_controlCmdFlow.append(initGetGasConcentration(0));
+
+    for (int i = 0; i < m_detectionValues.count(); i++) {
+        int waitValue = m_detectionValues.at(i) > 0 ? m_detectionValues.at(i) + 100 : 0;
+        // 等待浓度达到检测点
+        m_controlCmdFlow.append(initWaitConcentration(waitValue));
+        // 关闭气体进入,关闭所有电磁阀
+        m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+        // 1分钟关闭风扇
+        m_controlCmdFlow.append(initOperateFan(false, false, false, false, 1 * 60));
+        // 开始获取浓度
+        m_controlCmdFlow.append(initGetGasConcentration(m_detectionValues.at(i)));
+        // 降低浓度，打开风扇搅拌
+        m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+        m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    }
+
     // 关闭R32分析仪获取数据
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
 }
@@ -491,6 +442,7 @@ BaseCmd *ControlCmdFlow::initReadResistance(int concentration)
     auto *singleCmd = new SingleCmd();
     singleCmd->setSender(m_r32DataHandler);
 
+    // TODO 读取电阻值命令码,当用户自定义标定点怎么处理？
     if (concentration == 5000)
         singleCmd->setCmdCode(CMD_READ_5000PPM_06);
     else if (concentration == 1000)
