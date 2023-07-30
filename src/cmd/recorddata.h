@@ -19,16 +19,6 @@ struct R32Info {
     bool point2Valid = false;
     int point3 = 0;
     bool point3Valid = false;
-    float R0 = 0.0;
-    float R1000 = 0.0;
-    float R5000 = 0.0;
-    float p = 0.0;
-    float p1 = 0.0;
-    float p2 = 0.0;
-    // 温度
-    float temperature = 0.0;
-    // 湿度
-    float humidity = 0.0;
 
     // 5000浓度
     int r32Ccr5000 = 0;
@@ -52,6 +42,18 @@ struct R32Info {
     bool ccr0Valid = true;
 
     bool valid= false; // 判定结果
+    // QString而不是float便于存数据库
+    QString R0;
+    QString R1000;
+    QString R5000;
+    QString p;
+    QString p1;
+    QString p2;
+    // 温度
+    QString temperature;
+    // 湿度
+    QString humidity;
+
     // 标定状态
     QString calStatus;
     QString softVersion;

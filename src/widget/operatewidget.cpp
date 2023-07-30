@@ -487,73 +487,73 @@ void OperateWidget::updateTableWidget()
         m_tableWidget->item(row, 7)->setBackground(info.calStatus == "标定成功" ? Qt::green : Qt::red);
 
         // 标定的零点阻值R0
-        if (info.R0 > 0) {
+        if (!info.R0.isEmpty()) {
             if (m_tableWidget->item(row, 8)) {
-                m_tableWidget->item(row, 8)->setText(QString::number(info.R0));
+                m_tableWidget->item(row, 8)->setText(info.R0);
             } else {
-                m_tableWidget->setItem(row, 8, new QTableWidgetItem(QString::number(info.R0)));
+                m_tableWidget->setItem(row, 8, new QTableWidgetItem(info.R0));
             }
         }
 
         // 1000PPM的阻值
-        if (info.R1000 > 0) {
+        if (!info.R1000.isEmpty()) {
             if (m_tableWidget->item(row, 9)) {
-                m_tableWidget->item(row, 9)->setText(QString::number(info.R1000));
+                m_tableWidget->item(row, 9)->setText(info.R1000);
             } else {
-                m_tableWidget->setItem(row, 9, new QTableWidgetItem(QString::number(info.R1000)));
+                m_tableWidget->setItem(row, 9, new QTableWidgetItem(info.R1000));
             }
         }
 
         // 5000PPM的阻值
-        if (info.R5000 > 0) {
+        if (!info.R5000.isEmpty()) {
             if (m_tableWidget->item(row, 10)) {
-                m_tableWidget->item(row, 10)->setText(QString::number(info.R5000));
+                m_tableWidget->item(row, 10)->setText(info.R5000);
             } else {
-                m_tableWidget->setItem(row, 10, new QTableWidgetItem(QString::number(info.R5000)));
+                m_tableWidget->setItem(row, 10, new QTableWidgetItem(info.R5000));
             }
         }
 
         // 参数P
-        if (info.p > 0) {
+        if (!info.p.isEmpty()) {
             if (m_tableWidget->item(row, 11)) {
-                m_tableWidget->item(row, 11)->setText(QString::number(info.p));
+                m_tableWidget->item(row, 11)->setText(info.p);
             } else {
-                m_tableWidget->setItem(row, 11, new QTableWidgetItem(QString::number(info.p)));
+                m_tableWidget->setItem(row, 11, new QTableWidgetItem(info.p));
             }
         }
 
         // 参数P1
-        if (info.p1 > 0) {
+        if (!info.p1.isEmpty()) {
             if (m_tableWidget->item(row, 12)) {
-                m_tableWidget->item(row, 12)->setText(QString::number(info.p1));
+                m_tableWidget->item(row, 12)->setText(info.p1);
             } else {
-                m_tableWidget->setItem(row, 12, new QTableWidgetItem(QString::number(info.p1)));
+                m_tableWidget->setItem(row, 12, new QTableWidgetItem(info.p1));
             }
         }
 
         // 参数P2
-        if (info.p2 > 0) {
+        if (!info.p2.isEmpty()) {
             if (m_tableWidget->item(row, 13)) {
-                m_tableWidget->item(row, 13)->setText(QString::number(info.p2));
+                m_tableWidget->item(row, 13)->setText(info.p2);
             } else {
-                m_tableWidget->setItem(row, 13, new QTableWidgetItem(QString::number(info.p2)));
+                m_tableWidget->setItem(row, 13, new QTableWidgetItem(info.p2));
             }
         }
 
         // 温度
-        if (info.temperature > 0) {
+        if (!info.temperature.isEmpty()) {
             if (m_tableWidget->item(row, 14)) {
-                m_tableWidget->item(row, 14)->setText(QString::number(info.temperature));
+                m_tableWidget->item(row, 14)->setText(info.temperature);
             } else {
-                m_tableWidget->setItem(row, 14, new QTableWidgetItem(QString::number(info.temperature)));
+                m_tableWidget->setItem(row, 14, new QTableWidgetItem(info.temperature));
             }
         }
         // 湿度
-        if (info.humidity > 0) {
+        if (!info.humidity.isEmpty()) {
             if (m_tableWidget->item(row, 15)) {
-                m_tableWidget->item(row, 15)->setText(QString::number(info.humidity));
+                m_tableWidget->item(row, 15)->setText(info.humidity);
             } else {
-                m_tableWidget->setItem(row, 15, new QTableWidgetItem(QString::number(info.humidity)));
+                m_tableWidget->setItem(row, 15, new QTableWidgetItem(info.humidity));
             }
         }
 
@@ -647,7 +647,12 @@ void OperateWidget::updateTableWidget()
 void OperateWidget::syncDataToDB()
 {
     for (int i = m_fromChannel; i <= m_totalChannel; i++) {
-        const R32Info &info = RecordData::instance()->getR32Info(i);
+        R32Info info = RecordData::instance()->getR32Info(i);
+        // TODO: 临时处理
+        if (info.dateTime.isEmpty()) {
+            info.dateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        }
+
         R32RecordValueDao::insert(info);
     }
 }

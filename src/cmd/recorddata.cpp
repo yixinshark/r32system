@@ -117,7 +117,7 @@ void RecordData::setCalPoint(int point)
 void RecordData::setR0Value(float r0)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].R0 = r0;
+        m_recordData[m_currentChanel].R0 = QString::number(r0);
     } else {
         qWarning() << "RecordData::setR0Value: channel" << m_currentChanel << "not exists";
     }
@@ -126,7 +126,7 @@ void RecordData::setR0Value(float r0)
 void RecordData::setR1000Value(float r1000)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].R1000 = r1000;
+        m_recordData[m_currentChanel].R1000 = QString::number(r1000);
     } else {
         qWarning() << "RecordData::setR1000Value: channel" << m_currentChanel << "not exists";
     }
@@ -135,7 +135,7 @@ void RecordData::setR1000Value(float r1000)
 void RecordData::setR5000Value(float r5000)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].R5000 = r5000;
+        m_recordData[m_currentChanel].R5000 = QString::number(r5000);
     } else {
         qWarning() << "RecordData::setR5000Value: channel" << m_currentChanel << "not exists";
     }
@@ -246,8 +246,8 @@ void RecordData::setDetectPoint5000(int concentration)
 void RecordData::setTemperatureAndHumidity(float temperature, float humidity)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].temperature = temperature;
-        m_recordData[m_currentChanel].humidity = humidity;
+        m_recordData[m_currentChanel].temperature = QString::number(temperature);
+        m_recordData[m_currentChanel].humidity = QString::number(humidity);
     } else {
         qWarning() << "RecordData::setTemperatureAndHumidity: channel" << m_currentChanel << "not exists";
     }
@@ -256,7 +256,7 @@ void RecordData::setTemperatureAndHumidity(float temperature, float humidity)
 void RecordData::setPValue(float p)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].p = p;
+        m_recordData[m_currentChanel].p = QString::number(p);
     } else {
         qWarning() << "RecordData::setPValue: channel" << m_currentChanel << "not exists";
     }
@@ -265,7 +265,7 @@ void RecordData::setPValue(float p)
 void RecordData::setP1Value(float p1)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].p1 = p1;
+        m_recordData[m_currentChanel].p1 = QString::number(p1);
     } else {
         qWarning() << "RecordData::setP1Value: channel" << m_currentChanel << "not exists";
     }
@@ -274,7 +274,7 @@ void RecordData::setP1Value(float p1)
 void RecordData::setP2Value(float p2)
 {
     if (m_recordData.contains(m_currentChanel)) {
-        m_recordData[m_currentChanel].p2 = p2;
+        m_recordData[m_currentChanel].p2 = QString::number(p2);
     } else {
         qWarning() << "RecordData::setP2Value: channel" << m_currentChanel << "not exists";
     }

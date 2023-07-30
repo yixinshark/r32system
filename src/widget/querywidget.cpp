@@ -249,8 +249,9 @@ void QueryWidget::exportToExcel(const QString &filename, const QString &startTim
 
     // 写入数据
     for (int row = 0; row < queryModel->rowCount(); ++row) {
-        for (int column = 0; column < queryModel->columnCount(); ++column) {
-            cell = worksheet->querySubObject("Cells(int,int)", row + 2, column + 1);
+        // 从第一列开始，去掉数据库自增id列
+        for (int column = 1; column < queryModel->columnCount(); ++column) {
+            cell = worksheet->querySubObject("Cells(int,int)", row + 2, column);
             cell->setProperty("Value", queryModel->data(queryModel->index(row, column)).toString());
         }
     }
