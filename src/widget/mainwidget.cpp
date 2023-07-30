@@ -30,6 +30,8 @@ void MainWidget::initUI()
 {
 //    setMinimumSize(960, 790);
 
+    setMinimumWidth(1000);
+
     auto *tabWidget = new TabWidget(this);
     QStringList tabs;
     tabs << "R32传感器操作" << "数据查询与导出";

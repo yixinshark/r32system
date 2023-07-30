@@ -502,7 +502,8 @@ void Handler32data::addContent(char cmd, const QVariantMap &info, QByteArray &da
     };
 
     data.append(SEND_HEADER);
-    data.append(m_address == 0x00 ? RecordData::instance()->getcurrentChanel() : m_address);
+    data.append(m_address == 0x00 ? (char)RecordData::instance()->getcurrentChanel() : m_address);
+    qInfo() << "address:" << (int)m_address << " set:" << data.toHex();
     data.append(cmd);
     switch (cmd) {
         case CMD_01: {
@@ -658,4 +659,30 @@ bool Handler32data::readAlarmThreshold(quint8 cmd, const QByteArray &data, QVari
     value.insert(ACK_ALARM_THRESHOLD, alarmThreshold);
 
     return true;
+}
+
+void Handler32data::sendCmdData(const QByteArray &data)
+{
+    if (data.count() != 8) {
+        qWarning() << "error r32 send data:" << data.toHex();
+        return;
+    }
+
+    QByteArray sendData = data;
+
+    // 重載父類方法，添加地址
+    if (data.at(1) == 0x00 && data.at(6) == 0x01) {
+        // 还原地址设置内容
+        sendData[6] = 0x00;
+        HandleDataBase::sendCmdData(sendData);
+    } else {
+        // 添加当前地址
+        // 去掉最后一个字节
+        sendData.remove(7, 1);
+        sendData[1] = m_address;
+        addCheckSum(sendData);
+
+        qInfo() << "r32 send data:" << sendData.toHex();
+        HandleDataBase::sendCmdData(sendData);
+    }
 }

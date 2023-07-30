@@ -49,7 +49,7 @@ struct R32Info {
     // 0浓度
     int r32Ccr0 = 0;
     int ccr0 = 0;
-    bool ccr0Valid = false;
+    bool ccr0Valid = true;
 
     bool valid= false; // 判定结果
     // 标定状态
@@ -79,7 +79,7 @@ public:
 
     int recordDataCount() const;
     bool hasChannel(int channel) const;
-    const R32Info &getR32Info(int channel) const;
+    R32Info getR32Info(int channel) const;
 
     // 存储当前分析仪浓度值
     void setCurrentConcentration(int concentration);

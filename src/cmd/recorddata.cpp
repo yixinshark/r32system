@@ -39,6 +39,7 @@ void RecordData::setModuleAddress(int addr)
         m_recordData[m_currentChanel].addr = addr;
     } else {
         R32Info info;
+        info.channel = addr;
         info.addr = addr;
         m_recordData.insert(m_currentChanel, info);
     }
@@ -140,7 +141,7 @@ void RecordData::setR5000Value(float r5000)
     }
 }
 
-const R32Info &RecordData::getR32Info(int channel) const
+R32Info RecordData::getR32Info(int channel) const
 {
     return m_recordData[channel];
 }

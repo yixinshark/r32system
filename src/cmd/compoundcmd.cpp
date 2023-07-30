@@ -69,6 +69,21 @@ void CompoundCmd::execute()
 
 bool CompoundCmd::exeOvered()
 {
+    if (m_curCmd->exeOvered()) {
+        m_curCmd = nullptr;
+
+        if (m_cmdQueue.isEmpty()) {
+            if (m_loopIndex >= m_loopCount) {
+                m_overed = true;
+            } else {
+                m_cmdQueue = m_cmdQueueBak;
+                m_cmdQueueBak.clear();
+            }
+
+            m_loopIndex++;
+        }
+    }
+
     return m_overed;
 }
 
@@ -91,20 +106,20 @@ void CompoundCmd::recvCmdAckData(quint8 cmdCode)
         return;
 
     m_curCmd->recvCmdAckData(cmdCode);
-    if (m_curCmd->exeOvered()) {
-        m_curCmd = nullptr;
-
-        if (m_cmdQueue.isEmpty()) {
-            if (m_loopIndex >= m_loopCount) {
-                m_overed = true;
-            } else {
-                m_cmdQueue = m_cmdQueueBak;
-                m_cmdQueueBak.clear();
-            }
-
-            m_loopIndex++;
-        }
-    }
+//    if (m_curCmd->exeOvered()) {
+//        m_curCmd = nullptr;
+//
+//        if (m_cmdQueue.isEmpty()) {
+//            if (m_loopIndex >= m_loopCount) {
+//                m_overed = true;
+//            } else {
+//                m_cmdQueue = m_cmdQueueBak;
+//                m_cmdQueueBak.clear();
+//            }
+//
+//            m_loopIndex++;
+//        }
+//    }
 }
 
 void CompoundCmd::recvAckTimeout()
@@ -113,18 +128,18 @@ void CompoundCmd::recvAckTimeout()
         return;
 
     m_curCmd->recvAckTimeout();
-    if (m_curCmd->exeOvered()) {
-        m_curCmd = nullptr;
-
-        if (m_cmdQueue.isEmpty()) {
-            if (m_loopIndex >= m_loopCount) {
-                m_overed = true;
-            } else {
-                m_cmdQueue = m_cmdQueueBak;
-                m_cmdQueueBak.clear();
-            }
-
-            m_loopIndex++;
-        }
-    }
+//    if (m_curCmd->exeOvered()) {
+//        m_curCmd = nullptr;
+//
+//        if (m_cmdQueue.isEmpty()) {
+//            if (m_loopIndex >= m_loopCount) {
+//                m_overed = true;
+//            } else {
+//                m_cmdQueue = m_cmdQueueBak;
+//                m_cmdQueueBak.clear();
+//            }
+//
+//            m_loopIndex++;
+//        }
+//    }
 }

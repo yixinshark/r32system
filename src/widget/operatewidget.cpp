@@ -410,7 +410,7 @@ void OperateWidget::updateTableWidget()
         }
 
         // 更新表格
-        const R32Info &info = recordData->getR32Info(i);
+        R32Info info = recordData->getR32Info(i);
         int row = i - m_fromChannel;
         // 如果表格行不够，则添加
         if (row >= m_tableWidget->rowCount()) {
@@ -429,6 +429,7 @@ void OperateWidget::updateTableWidget()
         } else {
             m_tableWidget->setItem(row, 1, new QTableWidgetItem(info.valid ? "合格" : "不合格"));
         }
+        m_tableWidget->item(row, 1)->setBackground(info.valid ? Qt::green : Qt::red);
 
         // on/off, 如果是off，则显示红色背景，否则显示绿色背景
         if (m_tableWidget->item(row, 2)) {

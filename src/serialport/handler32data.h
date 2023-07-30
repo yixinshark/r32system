@@ -21,6 +21,7 @@ public:
 
 public:
     virtual void processReceivedData(const QByteArray &data);
+    void sendCmdData(const QByteArray &data) override;
 
 protected:
     // 填充发送内容

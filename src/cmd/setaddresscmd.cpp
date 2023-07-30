@@ -50,6 +50,8 @@ void SetAddressCmd::execute()
 
     if (m_sender) {
         m_sendData = getSendData(m_currentChannel);
+        // 为了区分设置地址和标定浓度，给发送的数据加上一个标志位
+        m_sendData[6] = 0x01;
         m_sender->sendCmdData(m_sendData);
 
         m_sentCount++;

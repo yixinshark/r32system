@@ -9,6 +9,7 @@ HandleDataBase::HandleDataBase(SerialPortCom *serialPortCom, QObject *parent)
     : QObject(parent)
     , m_serialPortCom(serialPortCom)
 {
+    connect(m_serialPortCom, &SerialPortCom::dataReceived, this, &HandleDataBase::processReceivedData);
 }
 
 HandleDataBase::~HandleDataBase() {
