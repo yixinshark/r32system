@@ -6,7 +6,7 @@
         CREATE TABLE r32table (
             id INT IDENTITY(1,1) PRIMARY KEY,
             dateTime VARCHAR(50),
-            sensor_id VARCHAR(50) UNIQUE,
+            sensor_id VARCHAR(50),
             valid VARCHAR(50),
             on_off VARCHAR(50),
             soft_version VARCHAR(50),
