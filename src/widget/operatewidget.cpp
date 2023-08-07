@@ -237,7 +237,6 @@ QLayout *OperateWidget::initSettingUI()
 
     // TSI值；分析仪浓度数
     auto *tsiLabel = new QLabel(tr("分析仪值："), this);
-    m_tsiLineEdit = new QLineEdit(this);
     m_tsiLineEdit->setReadOnly(true);
 
     auto *hLayout = new QHBoxLayout();

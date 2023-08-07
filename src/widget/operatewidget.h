@@ -10,11 +10,11 @@
 class QTimer;
 class QLabel;
 class QTextEdit;
+class QLineEdit;
 class QPushButton;
 class QTableWidget;
 class ConnectWidget;
 class ControlCmdFlow;
-class QLineEdit;
 
 class OperateWidget : public QWidget
 {
