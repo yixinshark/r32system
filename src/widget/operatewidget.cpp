@@ -33,6 +33,7 @@ OperateWidget::OperateWidget(QWidget *parent)
     , m_r32ConnectWidget(new ConnectWidget("R32传感器", this))
     , m_r32AnaConnectWidget(new ConnectWidget("分析仪", this))
     , m_mcuConnectWidget(new ConnectWidget("单片机", this))
+    , m_tsiLineEdit(new QLineEdit(this))
     , m_startBtn(new QPushButton(tr("开始"), this))
     , m_optMsgLabel(new QTextEdit(this))
     , m_tableWidget(new QTableWidget(this))
@@ -236,8 +237,7 @@ QLayout *OperateWidget::initSettingUI()
 
     // TSI值；分析仪浓度数
     auto *tsiLabel = new QLabel(tr("分析仪值："), this);
-    auto *tsiLineEdit = new QLineEdit(this);
-    tsiLineEdit->setReadOnly(true);
+    m_tsiLineEdit->setReadOnly(true);
 
     auto *hLayout = new QHBoxLayout();
     hLayout->setContentsMargins(10, 0, 0, 0);
@@ -251,7 +251,7 @@ QLayout *OperateWidget::initSettingUI()
     hLayout->addWidget(toLineEdit);
     hLayout->addStretch(1);
     hLayout->addWidget(tsiLabel);
-    hLayout->addWidget(tsiLineEdit);
+    hLayout->addWidget(m_tsiLineEdit);
     hLayout->addStretch(2);
 
     return hLayout;
@@ -344,6 +344,7 @@ QLayout *OperateWidget::initBtnsUI()
             if (m_timer->isActive()) {
                 m_timer->stop();
             }
+            m_tsiLineEdit->clear();
         }
     });
 
@@ -367,6 +368,7 @@ QLayout *OperateWidget::initBtnsUI()
             == QMessageBox::Yes) {
             RecordData::instance()->clearConcentrationCache();
             m_tableWidget->clearContents();
+            m_tsiLineEdit->clear();
         }
     });
 
@@ -398,6 +400,9 @@ void OperateWidget::startBtnClicked()
 
 void OperateWidget::updateTableWidget()
 {
+    // 附带更新一下tsi
+    m_tsiLineEdit->setText(QString::number(RecordData::instance()->getCurrentConcentration()));
+
     // 取出RecordData数据更新到表格中
     auto *recordData = RecordData::instance();
     if (recordData->recordDataCount() == 0) {

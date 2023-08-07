@@ -10,6 +10,7 @@
 class QTimer;
 class QLabel;
 class QTextEdit;
+class QLineEdit;
 class QPushButton;
 class QTableWidget;
 class ConnectWidget;
@@ -51,6 +52,8 @@ private:
     // mcu串口连接
     ConnectWidget *m_mcuConnectWidget;
 
+
+    QLineEdit *m_tsiLineEdit;
     QPushButton *m_startBtn;
     QTextEdit *m_optMsgLabel;
     QTableWidget *m_tableWidget;
