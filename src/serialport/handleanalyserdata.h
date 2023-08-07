@@ -33,7 +33,7 @@ private:
     void handleContent(const QByteArray &content);
 
 private:
-    char m_address = 0x00;
+    char m_address = 0x01; // 默认地址
     QTimer *m_timer = nullptr;
 };
 

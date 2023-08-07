@@ -76,6 +76,7 @@ public:
 
 public:
     void reset();
+    void clear();
     void clearConcentrationCache();
     bool hasData() const;
 

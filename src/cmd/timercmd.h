@@ -36,7 +36,7 @@ public:
     void setWaitSecs(int secs) { m_waitSecs = secs; }
 
 private:
-    int m_waitSecs;
+    int m_waitSecs = 0;
     bool m_overed = false;
 };
 

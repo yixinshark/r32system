@@ -42,6 +42,7 @@ void TimerCmd::execute()
         qWarning() << "TimerCmd::execute() m_timer is null";
     }
 #endif
+    m_overed = true;
 }
 
 bool TimerCmd::exeOvered()

@@ -59,7 +59,7 @@ void HandleAnalyserData::processReceivedData(const QByteArray &data)
 
         // 3. 提取帧数据
         QByteArray frameData = m_receivedData.left(dataLen + 5);
-        m_receivedData.remove(0, dataLen);
+        m_receivedData.remove(0, dataLen + 5);
 
         // 4. 判断帧数据是否有效
         if (!frameIsValid(frameData)) {
@@ -71,7 +71,7 @@ void HandleAnalyserData::processReceivedData(const QByteArray &data)
 
         // 5. 提取帧内容
         char cmd = frameData.at(1);
-        QByteArray content = frameData.mid(3, dataLen - 5);
+        QByteArray content = frameData.mid(3, dataLen);
         handleContent(content);
     }
 }

@@ -284,3 +284,10 @@ bool RecordData::hasData() const
 {
     return !m_recordData.isEmpty();
 }
+
+void RecordData::clear()
+{
+    m_recordData.clear();
+    m_currentChanel = 0;
+    m_concentrationCache.clear();
+}

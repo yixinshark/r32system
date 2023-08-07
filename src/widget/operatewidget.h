@@ -14,6 +14,7 @@ class QPushButton;
 class QTableWidget;
 class ConnectWidget;
 class ControlCmdFlow;
+class QLineEdit;
 
 class OperateWidget : public QWidget
 {
@@ -50,6 +51,8 @@ private:
     ConnectWidget *m_r32AnaConnectWidget;
     // mcu串口连接
     ConnectWidget *m_mcuConnectWidget;
+
+    QLineEdit *m_tsiLineEdit;
 
     QPushButton *m_startBtn;
     QTextEdit *m_optMsgLabel;

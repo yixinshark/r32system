@@ -55,6 +55,8 @@ void ControlCmdFlow::stop()
     if (m_timer->isActive())
         m_timer->stop();
 
+    m_r32AnaDataHandler->startPeriodTask(false);
+
     if (!m_controlCmdFlow.isEmpty()) {
         for (auto *cmd : m_controlCmdFlow) {
             delete cmd;
@@ -175,14 +177,20 @@ void ControlCmdFlow::timerTimeout()
         return;
     }
 
-    currentCmd->recvAckTimeout(); // TODO tips
-    QString errorInfo = currentCmd->exeErrInfo();
-    if (!errorInfo.isEmpty()) {
-        qWarning() << errorInfo;
-        Q_EMIT cmdexecuted(errorInfo);
+    if (currentCmd->waitSecs() > 0) {
+        // 延时执行命令
+        currentCmd->execute();
     } else {
-        Q_EMIT cmdexecuted("命令执行超时!");
-        qWarning() << "currentCmd is timeout";
+        // 发数据，等待回复超时
+        currentCmd->recvAckTimeout();
+        QString errorInfo = currentCmd->exeErrInfo();
+        if (!errorInfo.isEmpty()) {
+            qWarning() << errorInfo;
+            Q_EMIT cmdexecuted(errorInfo);
+        } else {
+            Q_EMIT cmdexecuted("命令执行超时!");
+            qWarning() << "currentCmd is timeout";
+        }
     }
 
     if (currentCmd->exeOvered()) {
