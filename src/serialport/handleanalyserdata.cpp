@@ -18,7 +18,7 @@ HandleAnalyserData::HandleAnalyserData(SerialPortCom *serialPortCom, QObject *pa
 
     // 定时获取分析仪浓度
     m_timer->setSingleShot(false);
-    m_timer->setInterval(200); // 默认200ms
+    m_timer->setInterval(300); // 默认200ms
     connect(m_timer, &QTimer::timeout, this, [this, serialPortCom]{
         static QByteArray data;
         if (data.isEmpty()) {

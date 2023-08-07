@@ -177,20 +177,14 @@ void ControlCmdFlow::timerTimeout()
         return;
     }
 
-    if (currentCmd->waitSecs() > 0) {
-        // 延时执行命令
-        currentCmd->execute();
+    currentCmd->recvAckTimeout(); // 执行后修改waitSecs = 0
+    QString errorInfo = currentCmd->exeErrInfo();
+    if (!errorInfo.isEmpty()) {
+        qWarning() << errorInfo;
+        Q_EMIT cmdexecuted(errorInfo);
     } else {
-        // 发数据，等待回复超时
-        currentCmd->recvAckTimeout();
-        QString errorInfo = currentCmd->exeErrInfo();
-        if (!errorInfo.isEmpty()) {
-            qWarning() << errorInfo;
-            Q_EMIT cmdexecuted(errorInfo);
-        } else {
-            Q_EMIT cmdexecuted("命令执行超时!");
-            qWarning() << "currentCmd is timeout";
-        }
+        Q_EMIT cmdexecuted("命令执行超时!");
+        qWarning() << "currentCmd is timeout";
     }
 
     if (currentCmd->exeOvered()) {
@@ -354,7 +348,6 @@ BaseCmd *ControlCmdFlow::initWaitConcentration(int point)
 {
     auto *cmd = new ConditionCmd();
     cmd->setCondition(point);
-    cmd->setWaitSecs(2);
     cmd->setSender(m_r32AnaDataHandler);
     cmd->setCmdCode(ANALYSER_CMD);
 
