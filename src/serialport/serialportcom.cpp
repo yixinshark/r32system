@@ -75,9 +75,9 @@ void SerialPortCom::sendData(const char *data, int size)
 void SerialPortCom::readData()
 {
     if (m_serialPort->isOpen() && m_serialPort->bytesAvailable() > 0) {
-        qInfo() << "-----readData-----:" << m_serialPort->bytesAvailable();
+        //qInfo() << "-----readData-----:" << m_serialPort->bytesAvailable();
         QByteArray data = m_serialPort->readAll();
-        qInfo() << "read data count:" << data.size() << "data:" << data.toHex();
+        //qInfo() << "read data count:" << data.size() << "data:" << data.toHex();
         emit dataReceived(data);
     }
 }

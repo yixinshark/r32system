@@ -21,6 +21,7 @@ HandleMcuData::~HandleMcuData()
 
 void HandleMcuData::processReceivedData(const QByteArray &data)
 {
+    qInfo() << "---read mcu data count:" << data.size() << "data:" << data.toHex();
     m_receivedData.append(data);
 
     // 1. 判断帧数据是否有效

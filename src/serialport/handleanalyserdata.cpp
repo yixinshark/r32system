@@ -42,6 +42,7 @@ void HandleAnalyserData::setAddress(char address)
 
 void HandleAnalyserData::processReceivedData(const QByteArray &data)
 {
+    qInfo() << "---read analyser data count:" << data.size() << "data:" << data.toHex();
     m_receivedData.append(data);
 
     while (m_receivedData.length() > 3) {

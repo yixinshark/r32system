@@ -44,6 +44,7 @@ Handler32data::~Handler32data()
 
 void Handler32data::processReceivedData(const QByteArray &data)
 {
+    qInfo() << "---read r32 data count:" << data.size() << "data:" << data.toHex();
     m_receivedData.append(data);
 
     // 1. 判断数据是否有效

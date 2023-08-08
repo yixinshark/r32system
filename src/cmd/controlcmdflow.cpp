@@ -170,7 +170,7 @@ void ControlCmdFlow::timerTimeout()
         return;
     }
 
-    qInfo() << Q_FUNC_INFO;
+    //qInfo() << Q_FUNC_INFO;
     auto *currentCmd = m_controlCmdFlow.first();
     if (!currentCmd) {
         qWarning() << "currentCmd is null";
@@ -184,7 +184,7 @@ void ControlCmdFlow::timerTimeout()
         Q_EMIT cmdexecuted(errorInfo);
     } else {
         Q_EMIT cmdexecuted("命令执行超时!");
-        qWarning() << "currentCmd is timeout";
+        qWarning() << "currentCmd executed timeout";
     }
 
     if (currentCmd->exeOvered()) {
