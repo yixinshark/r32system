@@ -23,10 +23,15 @@ void SingleCmd::initCmd()
 QString SingleCmd::cmdInfo()
 {
     QString info;
-    if (m_sender)
-        info = QString("发送到:%1").arg(m_sender->senderName());
-    info += " 命令码:0x" + QString::number(m_cmdCode, 16);
-    info += " 内容:" + m_sendData.toHex();
+
+    if (m_waitSecs > 0) {
+        info = QString("等待%1秒").arg(m_waitSecs);
+    } else {
+        if (m_sender)
+            info = QString("发送到:%1").arg(m_sender->senderName());
+        info += " 命令码:0x" + QString::number(m_cmdCode, 16);
+        info += " 内容:" + m_sendData.toHex();
+    }
 
     return info;
 }

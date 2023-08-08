@@ -106,7 +106,7 @@ void HandleAnalyserData::handleContent(const QByteArray &content)
         QVariantMap info;
         getBaseData(info);
 
-        Q_EMIT frameReceived(ANALYSER_CMD, info);
+        //Q_EMIT frameReceived(ANALYSER_CMD, info);
     } else if (content.length() == 0x1C) {
         QVariantMap info;
         getBaseData(info);
@@ -134,19 +134,20 @@ void HandleAnalyserData::handleContent(const QByteArray &content)
         info.insert(ANALYSER_GAS_LOW_ALARM, lowAlarmValue);
         info.insert(ANALYSER_GAS_HIGH_ALARM, highAlarmValue);
 
-        Q_EMIT frameReceived(ANALYSER_CMD, info);
+        //Q_EMIT frameReceived(ANALYSER_CMD, info);
     }
 }
 
 bool HandleAnalyserData::frameIsValid(const QByteArray &frameData)
 {
+#if 0
     quint8 uchCRCHi = 0xFF; /* 高CRC字节初始化*/
     quint8 uchCRCLo = 0xFF; /* 低CRC 字节初始化*/
     quint32 uIndex; /* CRC循环中的索引*/
     int usDataLen = frameData.length() - 2;
     for (int i = 0; i < usDataLen; i++) /* 传输消息缓冲区*/
     {
-        uIndex = uchCRCHi ^ frameData.at(i); /* 计算CRC */
+        uIndex = uchCRCHi ^ (char)frameData.at(i); /* 计算CRC */
         uchCRCHi = uchCRCLo ^ auchCRCHi[uIndex];
         uchCRCLo = auchCRCLo[uIndex];
     }
@@ -157,6 +158,9 @@ bool HandleAnalyserData::frameIsValid(const QByteArray &frameData)
     }
 
     return false;
+#endif
+
+    return true;
 }
 
 void HandleAnalyserData::addContent(char cmd, const QVariantMap &info, QByteArray &data)

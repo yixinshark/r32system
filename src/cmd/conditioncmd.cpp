@@ -65,7 +65,9 @@ void ConditionCmd::recvAckTimeout()
 {
     // 获取当前浓度
     int concentration = RecordData::instance()->getCurrentConcentration();
-    if (concentration >= m_targetConcentration) {
+    // 如果当前浓度大于等于目标浓度小于等于目标浓度的10%
+    int waitValue = m_targetConcentration == 0 ? 10 : m_targetConcentration + (int)(m_targetConcentration * 0.1);
+    if (concentration >= m_targetConcentration && concentration <= waitValue) {
         m_overed = true;
     }
 }
@@ -75,7 +77,8 @@ void ConditionCmd::recvCmdAckData(quint8 cmd)
     if (cmd == m_cmdCode) {
         // 获取当前浓度
         int concentration = RecordData::instance()->getCurrentConcentration();
-        if (concentration >= m_targetConcentration) {
+        int waitValue = m_targetConcentration == 0 ? 10 :m_targetConcentration + (int)(m_targetConcentration * 0.1);;
+        if (concentration >= m_targetConcentration && concentration <= waitValue) {
             m_overed = true;
         }
     }

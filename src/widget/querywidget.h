@@ -41,7 +41,7 @@ private:
     QTableView *m_tableView;
     PageWidget *m_pageWidget;
 
-    QSqlQueryModel *m_queryModel;
+    QSqlQueryModel *m_queryModel = nullptr;
 
     int m_currentPage = 1;
     int m_totalPages = 0;
