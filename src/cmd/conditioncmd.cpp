@@ -28,7 +28,8 @@ int ConditionCmd::waitSecs()
 
 QString ConditionCmd::cmdInfo()
 {
-    return QString("获取当前浓度%1，目标浓度：%1").arg(RecordData::instance()->getCurrentConcentration()).arg(m_targetConcentration);
+    int waitValue = m_targetConcentration == 0 ? 50 : m_targetConcentration;
+    return QString("获取当前浓度%1，目标浓度：%2").arg(RecordData::instance()->getCurrentConcentration()).arg(waitValue);
 }
 
 void ConditionCmd::execute()

@@ -92,8 +92,8 @@ void RecordData::setCalPoint(int point)
                 break;
             case 2:
                 m_recordData[m_currentChanel].point2 = getCurrentConcentration();
-                // 当前浓度值在3000的10%范围内，认为是有效值
-                if (m_recordData[m_currentChanel].point2 >= 2700 && m_recordData[m_currentChanel].point2 <= 3300) {
+                // 当前浓度值在1000的10%范围内，认为是有效值
+                if (m_recordData[m_currentChanel].point2 >= 900 && m_recordData[m_currentChanel].point2 <= 1100) {
                     m_recordData[m_currentChanel].point2Valid = true;
                 } else {
                     m_recordData[m_currentChanel].point2Valid = false;
@@ -171,7 +171,7 @@ void RecordData::setDetectPoint0(int concentration)
         m_recordData[m_currentChanel].r32Ccr0 = concentration;
         m_recordData[m_currentChanel].ccr0 = getCurrentConcentration();
         // 当前浓度值在0的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr0 >= 0 && m_recordData[m_currentChanel].ccr0 <= 20) {
+        if (m_recordData[m_currentChanel].ccr0 >= 0 && m_recordData[m_currentChanel].ccr0 <= 50) {
             m_recordData[m_currentChanel].ccr0Valid = true;
         }
         // 判定结果

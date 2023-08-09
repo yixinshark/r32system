@@ -76,7 +76,7 @@ OperateWidget::OperateWidget(QWidget *parent)
         m_started = false;
 
         // 1s后停止更新表格
-        QTimer::singleShot(1000, this, [this]{
+        QTimer::singleShot(3000, this, [this]{
             if (m_timer->isActive()) {
                 m_timer->stop();
             }
@@ -215,8 +215,6 @@ QLayout *OperateWidget::initSettingUI()
     // 设置默认值
     m_fromChannel = fromComboBox->currentText().toInt();
     m_totalChannel = spinBox->value();
-    m_controlCmdFlow->setFromChannel(m_fromChannel);
-    m_controlCmdFlow->setTotalChannel(m_totalChannel);
 
     connect(fromComboBox, &QComboBox::currentTextChanged,
             this, [this, fromComboBox, spinBox, toLineEdit]{
@@ -224,7 +222,6 @@ QLayout *OperateWidget::initSettingUI()
         int to = from + spinBox->value() - 1;
         toLineEdit->setText(QString::number(to));
         m_fromChannel = from;
-        m_controlCmdFlow->setFromChannel(from);
     });
     connect(spinBox, &QSpinBox::textChanged, this,
             [this, fromComboBox, spinBox, toLineEdit]{
@@ -232,7 +229,6 @@ QLayout *OperateWidget::initSettingUI()
         int to = from + spinBox->value() - 1;
         toLineEdit->setText(QString::number(to));
         m_totalChannel = spinBox->value();
-        m_controlCmdFlow->setTotalChannel(m_totalChannel);
     });
 
     // TSI值；分析仪浓度数
@@ -390,6 +386,14 @@ void OperateWidget::startBtnClicked()
         return;
     }
 
+    int toChannel =  m_totalChannel;
+    if (m_fromChannel > 1) {
+        toChannel = m_totalChannel + m_fromChannel - 1;
+    }
+    m_controlCmdFlow->setFromChannel(m_fromChannel);
+    m_controlCmdFlow->setTotalChannel(toChannel);
+    qInfo() << "fromChannel: " << m_fromChannel << " toChannel: " << toChannel;
+
     m_started = true;
     m_startBtn->setText("执行中...");
     QTimer::singleShot(0, this, [this] {
@@ -409,7 +413,12 @@ void OperateWidget::updateTableWidget()
         return;
     }
 
-    for (int i = m_fromChannel; i <= m_totalChannel; i++) {
+    int toChannel =  m_totalChannel;
+    if (m_fromChannel > 1) {
+        toChannel = m_totalChannel + m_fromChannel - 1;
+    }
+
+    for (int i = m_fromChannel; i <= toChannel; i++) {
         if (!recordData->hasChannel(i)) {
             continue;
         }
@@ -651,7 +660,12 @@ void OperateWidget::updateTableWidget()
 
 void OperateWidget::syncDataToDB()
 {
-    for (int i = m_fromChannel; i <= m_totalChannel; i++) {
+    int toChannel =  m_totalChannel;
+    if (m_fromChannel > 1) {
+        toChannel = m_totalChannel + m_fromChannel - 1;
+    }
+
+    for (int i = m_fromChannel; i <= toChannel; i++) {
         R32Info info = RecordData::instance()->getR32Info(i);
         // TODO: 临时处理
         if (info.dateTime.isEmpty()) {
