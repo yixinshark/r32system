@@ -38,6 +38,7 @@ public:
 
     void setEnable(bool enable) { m_enable = enable; }
     void setWaitSecs(int secs) { m_waitSecs = secs; }
+    void setPrecision(float precision) { m_precision = precision; }
     void setCondition(int condition) { m_targetConcentration = condition; }
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
     int cmdCode() const { return m_cmdCode; }
@@ -47,6 +48,8 @@ public:
 private:
     bool m_enable = true;
     int m_waitSecs = 0;
+    // 精度
+    float m_precision = 0.0;
     // 目标浓度
     int m_targetConcentration = 0;
     bool m_overed = false;

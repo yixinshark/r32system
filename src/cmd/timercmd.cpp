@@ -26,7 +26,7 @@ int TimerCmd::waitSecs()
 
 QString TimerCmd::cmdInfo()
 {
-    return QString("等待%1分钟中").arg(m_waitSecs / 60);
+    return QString("等待%1秒中").arg(m_waitSecs);
 }
 
 void TimerCmd::execute()

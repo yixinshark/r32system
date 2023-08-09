@@ -44,6 +44,9 @@ public:
 private:
     void initCalibrationCmdFlow();
     void initDetectCmdFlow();
+
+    void initCalibrationCmdFlow1();
+    void initDetectCmdFlow1();
     void timerTimeout();
     void executeCmdFlow();
 
@@ -56,14 +59,14 @@ private:
     BaseCmd *initReadSensorAddress();
     // 读取固件版本号
     BaseCmd *initReadFirmwareVersion();
-    // 等待3分钟
-    BaseCmd *initWait3Minutes();
+    // 等待secs秒
+    BaseCmd *initWaitSecs(int secs);
     // 操作电磁阀
     BaseCmd *initOperateValve(bool open1, bool open2, bool open3, bool open4);
     // 操作风扇
     BaseCmd *initOperateFan(bool open1, bool open2, bool open3, bool open4, int waitSecs = 0);
-    // 浓度点等待
-    BaseCmd *initWaitConcentration(int point);
+    // 浓度点等待，标定精度为0.1, 检测精度为0.05
+    BaseCmd *initWaitConcentration(int point, float precision = 0.1);
     // 关闭电磁阀
     BaseCmd *initCloseValve();
     // 关闭风扇

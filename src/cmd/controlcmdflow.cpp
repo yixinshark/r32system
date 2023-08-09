@@ -39,11 +39,11 @@ void ControlCmdFlow::start()
 {
     m_isStarted = true;
     if (m_calibrationMode) {
-        initCalibrationCmdFlow();
+        initCalibrationCmdFlow1();
     }
 
     if (m_detectMode) {
-        initDetectCmdFlow();
+        initDetectCmdFlow1();
     }
 
     executeCmdFlow();
@@ -95,7 +95,7 @@ void ControlCmdFlow::initCalibrationCmdFlow()
     // 轮询上电检测
     m_controlCmdFlow.append(initPowerOnDetect());
     // 等待3分钟
-    m_controlCmdFlow.append(initWait3Minutes());
+    m_controlCmdFlow.append(initWaitSecs(3 * 60));
     // 加气体，并搅拌
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
@@ -146,6 +146,86 @@ void ControlCmdFlow::initDetectCmdFlow()
 
     // 关闭R32分析仪获取数据
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+}
+
+void ControlCmdFlow::initCalibrationCmdFlow1()
+{
+    // 轮询上电检测
+    m_controlCmdFlow.append(initPowerOnDetect());
+    // 等待3分钟
+    m_controlCmdFlow.append(initWaitSecs(3 * 60));
+    // 加气体，并搅拌
+    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+
+    // 等待到达最高浓度+10%;加气体快，等到值达到最高点后，停止关闭加气，等到标定时仍然很高，会导致第一个标定点失败。所以先升高再降低再标定
+    m_controlCmdFlow.append(initWaitConcentration(m_calibrationValues.first() + (int)(m_calibrationValues.first() * 0.1)));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 等待10s
+    m_controlCmdFlow.append(initWaitSecs(10));
+
+    for (int i = 0; i < m_calibrationValues.count(); i++) {
+        int waitValue = m_calibrationValues.at(i) > 0 ? m_calibrationValues.at(i) + 100 : 0;
+        // 降低浓度，风扇没关在搅拌
+        m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+        // 等待浓度达到标定点
+        m_controlCmdFlow.append(initWaitConcentration(waitValue));
+        // 关闭气体进入,关闭所有电磁阀
+        m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+        // 等待1分钟,风扇没关在搅拌
+        m_controlCmdFlow.append(initWaitSecs(1 * 60));
+        // 开始标记浓度
+        m_controlCmdFlow.append(initGasPointCalibration(i + 1, m_calibrationValues.at(i)));
+    }
+
+    // 关闭R32分析仪获取数据
+    m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+    // 标定完成
+    m_controlCmdFlow.append(initCalibrationOver());
+    // 关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+}
+
+void ControlCmdFlow::initDetectCmdFlow1()
+{
+    // 加气体，并搅拌
+    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
+    m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+
+    // 等待到达最高浓度+10%;加气体快，等到值达到最高点后，停止关闭加气，等到标定时仍然很高，会导致第一个标定点失败。所以先升高再降低再标定
+    m_controlCmdFlow.append(initWaitConcentration(m_detectionValues.first() + (int)(m_detectionValues.first() * 0.1)));
+    // 关闭气体进入,关闭所有电磁阀
+    m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+    // 等待10s
+    m_controlCmdFlow.append(initWaitSecs(10));
+
+    for (int i = 0; i < m_detectionValues.count(); i++) {
+        int waitValue = m_detectionValues.at(i);
+        if (waitValue == 0) {
+            waitValue = 50;
+        } else if (waitValue > 0 && waitValue <= 1000) {
+            waitValue += 50;
+        } else {
+            waitValue += 100;
+        }
+
+        // 降低浓度，风扇没关在搅拌
+        m_controlCmdFlow.append(initOperateValve(false, false, true, true));
+        // 等待浓度达到检测点
+        m_controlCmdFlow.append(initWaitConcentration(waitValue, 0.05));
+        // 关闭气体进入,关闭所有电磁阀
+        m_controlCmdFlow.append(initOperateValve(false, false, false, false));
+        // 等待1分钟，风扇没关在搅拌
+        m_controlCmdFlow.append(initWaitSecs(1 * 60));
+        // 开始获取浓度
+        m_controlCmdFlow.append(initGetGasConcentration(m_detectionValues.at(i)));
+    }
+
+    // 关闭R32分析仪获取数据
+    m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+    // 关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false));
 }
 
 void ControlCmdFlow::setR32AnaDataHandler(HandleDataBase *handler)
@@ -295,10 +375,10 @@ BaseCmd *ControlCmdFlow::initReadFirmwareVersion()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initWait3Minutes()
+BaseCmd *ControlCmdFlow::initWaitSecs(int secs)
 {
     auto *cmd = new TimerCmd();
-    cmd->setWaitSecs(3 * 60); // 等待3分钟后执行
+    cmd->setWaitSecs(secs); // 等待secs后执行
 
     return cmd;
 }
@@ -344,10 +424,11 @@ BaseCmd *ControlCmdFlow::initOperateFan(bool open1, bool open2, bool open3, bool
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initWaitConcentration(int point)
+BaseCmd *ControlCmdFlow::initWaitConcentration(int point, float precision)
 {
     auto *cmd = new ConditionCmd();
     cmd->setCondition(point);
+    cmd->setPrecision(precision);
     cmd->setSender(m_r32AnaDataHandler);
     cmd->setCmdCode(ANALYSER_CMD);
 

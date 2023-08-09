@@ -260,7 +260,7 @@ QLayout *OperateWidget::initCalibrationUI()
     auto *label3 = new QLabel(tr("标定点位个数：(1-5000,2-1000,3-0)"), this);
     label3->setFont(font);
     label3->setMinimumHeight(30);
-    auto *label4 = new QLabel(tr("检测点位个数：(1-5000,2-3000,3-2000,4-1000,5-0)"), this);
+    auto *label4 = new QLabel(tr("检测点位个数：(1-5000,2-3000,3-1000,4-500,5-0)"), this);
     label4->setFont(font);
     label4->setMinimumHeight(30);
     auto *settingBtn = new QPushButton(tr("设置"), this);
@@ -306,7 +306,7 @@ QLayout *OperateWidget::initCalibrationUI()
     m_controlCmdFlow->setCalibrationValues(calibrationValues);
     // 检测点位默认值
     QVector<int> detectionValues;
-    detectionValues << 5000 << 3000 << 2000 << 1000 << 0;
+    detectionValues << 5000 << 3000 << 1000 << 500 << 0;
     m_controlCmdFlow->setDetectionValues(detectionValues);
 
     auto *hLayout = new QHBoxLayout();
@@ -365,6 +365,7 @@ QLayout *OperateWidget::initBtnsUI()
             m_tsiLineEdit->clear();
             RecordData::instance()->clear();
             m_tableWidget->clearContents();
+            m_optMsgLabel->clear();
         }
     });
 
