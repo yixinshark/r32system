@@ -204,8 +204,10 @@ void HandleAnalyserData::startPeriodTask(bool enable)
             m_timer->stop();
 
         m_timer->start();
+        qInfo() << "start get analyser data timer";
     } else {
         m_timer->stop();
+        qInfo() << "stop get analyser data timer";
         RecordData::instance()->clearConcentrationCache();
     }
 }

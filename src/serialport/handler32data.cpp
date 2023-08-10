@@ -161,13 +161,7 @@ bool Handler32data::readOperateResult(quint8 cmd, const QByteArray &data, QVaria
                 value.insert(ACK_RESULT, "未标定");
                 break;
             case 1:
-                value.insert(ACK_ERROR, "标定中");
-                break;
-            case 2:
-                value.insert(ACK_ERROR, "标定失败");
-                break;
-            case 3:
-                value.insert(ACK_ERROR, "标定成功");
+                value.insert(ACK_ERROR, "已标定");
                 break;
             default:
                 value.insert(ACK_ERROR, "未知状态");
@@ -405,26 +399,7 @@ bool Handler32data::readGasConcentration(quint8 cmd, const QByteArray &data, QVa
     concentration = (static_cast<quint8>(data.at(0)) << 8) | (static_cast<quint8>(data.at(1)));
     value.insert(ACK_GAS_CONCENTRATION, concentration);
 
-    switch (m_currentDetectPoint) {
-        case 0:
-            RecordData::instance()->setDetectPoint0(concentration);
-            break;
-        case 500:
-            RecordData::instance()->setDetectPoint500(concentration);
-            break;
-        case 1000:
-            RecordData::instance()->setDetectPoint1000(concentration);
-            break;
-        case 3000:
-            RecordData::instance()->setDetectPoint3000(concentration);
-            break;
-        case 5000:
-            RecordData::instance()->setDetectPoint5000(concentration);
-            break;
-        default:
-            qWarning() << "unknown detect point:" << m_currentDetectPoint;
-            break;
-    }
+    RecordData::instance()->setDetectPointValue(concentration);
 
     // 读取报警状态
     quint8 alarm = static_cast<quint8>(data.at(2));
@@ -540,10 +515,6 @@ void Handler32data::addContent(char cmd, const QVariantMap &info, QByteArray &da
         default:
             addFourNoneByte();
             break;
-    }
-
-    if (cmd == CMD_READ_GAS_CONCENTRATION_25) {
-        m_currentDetectPoint = static_cast<quint8>(info.value(GAS_CONCENTRATION).toUInt());
     }
 
     addCheckSum(data);

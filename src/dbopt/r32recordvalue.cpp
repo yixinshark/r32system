@@ -50,6 +50,7 @@ R32Info R32RecordValueDao::mapToR32(const QMap<QString, QVariant> &rowMap) {
     data.point1 = rowMap.value("point1").toInt();
     data.point2 = rowMap.value("point2").toInt();
     data.point3 = rowMap.value("point3").toInt();
+    data.calStatus = rowMap.value("cal_status").toString();
     data.R0 = rowMap.value("R0").toFloat();
     data.R1000 = rowMap.value("R1000").toFloat();
     data.R5000 = rowMap.value("R5000").toFloat();

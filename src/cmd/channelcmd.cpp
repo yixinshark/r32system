@@ -49,6 +49,7 @@ void ChannelCmd::execute()
         m_sendData = getSendData();
 
         m_sender->sendCmdData(m_sendData);
+        RecordData::instance()->setCurrentChannel(m_currentChannel);
         m_sentCount++;
     }
 }
@@ -63,6 +64,8 @@ bool ChannelCmd::exeOvered()
         }
         m_currentChannel++;
         m_sentCount = 0;
+        // 组合命令中复用了该命令，所以需要重置
+        m_executeSuccess = false;
         return true;
     } else {
         return false;
@@ -88,7 +91,6 @@ void ChannelCmd::recvCmdAckData(quint8 cmd)
 {
     if (cmd == m_cmdCode) {
         m_executeSuccess = true;
-        RecordData::instance()->setCurrentChannel(m_currentChannel);
     } else {
         m_errInfo = QString("获取错误ACK:0x%1").arg(QString::number(cmd,16));
     }

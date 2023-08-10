@@ -18,6 +18,7 @@
 
 #include <QDebug>
 #include <QVariantMap>
+#include "detectpointcmd.h"
 
 ControlCmdFlow::ControlCmdFlow(QObject *parent)
     : QObject(parent)
@@ -180,7 +181,7 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
     }
 
     // 关闭R32分析仪获取数据
-    m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+    //m_controlCmdFlow.append(initCloseR32AnaGetGasData());
     // 标定完成
     m_controlCmdFlow.append(initCalibrationOver());
     // 关闭风扇
@@ -189,6 +190,13 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
 
 void ControlCmdFlow::initDetectCmdFlow1()
 {
+    // 轮询上电检测
+    if (!m_calibrationMode) {
+        // 轮询上电检测
+        m_controlCmdFlow.append(initPowerOnDetect());
+        // TODO 等待3分钟
+    }
+
     // 加气体，并搅拌
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
@@ -226,6 +234,8 @@ void ControlCmdFlow::initDetectCmdFlow1()
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
     // 关闭风扇
     m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+    // 开始排气体
+    m_controlCmdFlow.append(initOperateValve(false, false, false, true));
 }
 
 void ControlCmdFlow::setR32AnaDataHandler(HandleDataBase *handler)
@@ -613,13 +623,10 @@ BaseCmd *ControlCmdFlow::initGetGasConcentration(int concentration)
     compoundCmd->addCmd(cmd);
 
     // 获取气体浓度
-    auto *singleCmd = new SingleCmd();
-    singleCmd->setSender(m_r32DataHandler);
-    singleCmd->setCmdCode(CMD_READ_GAS_CONCENTRATION_25);
-    QVariantMap info;
-    info.insert(GAS_CONCENTRATION, concentration);
-    singleCmd->setSendData(m_r32DataHandler->getSendData(CMD_READ_GAS_CONCENTRATION_25, info));
-    compoundCmd->addCmd(singleCmd);
+    auto *detectCmd = new DetectPointCmd();
+    detectCmd->setSender(m_r32DataHandler);
+    detectCmd->setDetectPoint(concentration);
+    compoundCmd->addCmd(detectCmd);
 
     return compoundCmd;
 }

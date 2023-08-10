@@ -13,7 +13,7 @@
             point1 INT,
             point2 INT,
             point3 INT,
-            cal_status bit,
+            cal_status VARCHAR(50),
             R0 FLOAT,
             R1000 FLOAT,
             R5000 FLOAT,

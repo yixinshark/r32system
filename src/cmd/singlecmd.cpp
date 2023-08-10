@@ -55,6 +55,8 @@ bool SingleCmd::exeOvered()
             m_errInfo = QString("命令0x%1,执行成功").arg(QString::number(m_cmdCode,16));
         }
         m_sentCount = 0;
+        // 组合命令中复用了该命令，所以需要重置
+        m_executeSuccess = false;
         return true;
     } else {
         return false;

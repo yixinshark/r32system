@@ -666,13 +666,19 @@ void OperateWidget::syncDataToDB()
         toChannel = m_totalChannel + m_fromChannel - 1;
     }
 
+    bool ok = false;
+    QString currentTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     for (int i = m_fromChannel; i <= toChannel; i++) {
         R32Info info = RecordData::instance()->getR32Info(i);
-        // TODO: 临时处理
-        if (info.dateTime.isEmpty()) {
-            info.dateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
-        }
+        info.dateTime = currentTime;
 
-        R32RecordValueDao::insert(info);
+        ok &= R32RecordValueDao::insert(info);
+    }
+
+    // 提示
+    if (ok) {
+        QMessageBox::information(this, tr("提示"), tr("数据同步数据库成功!"));
+    } else {
+        QMessageBox::warning(this, tr("提示"), tr("数据同步数据库失败!"));
     }
 }

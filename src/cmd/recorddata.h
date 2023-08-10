@@ -94,6 +94,9 @@ public:
     void setModuleAddress(int addr);
     void setFirmwareVersion(const QString &version);
     void setCalPoint(int point);
+    void setDetectPoint(int point);
+    // 设置检测点浓度值
+    void setDetectPointValue(int concentration);
     void setR0Value(float r0);
     void setR1000Value(float r1000);
     void setR5000Value(float r5000);
@@ -117,6 +120,7 @@ private:
 
 private:
     int m_currentChanel = 0;
+    int m_curDetectPoint = -1;
     // 当前分析仪浓度值缓存
     QList<int> m_concentrationCache;
     QMap<int, R32Info> m_recordData;
