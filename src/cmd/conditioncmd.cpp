@@ -59,7 +59,7 @@ bool ConditionCmd::exeSuccess()
 
 QString ConditionCmd::exeErrInfo()
 {
-    return QString();
+    return QString("等待浓度到达目标浓度: %1").arg(m_targetConcentration == 0 ? 50 : m_targetConcentration);
 }
 
 void ConditionCmd::recvAckTimeout()

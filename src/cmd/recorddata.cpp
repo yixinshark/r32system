@@ -65,15 +65,16 @@ void RecordData::setCurrentConcentration(int concentration)
 
 int RecordData::getCurrentConcentration() const
 {
-    // m_concentrationCache缓存少于5个值，返回0，否则返回五个值的平均值
-    if (m_concentrationCache.size() < 5) {
+    // m_concentrationCache缓存少于4个值，返回0，否则返回4个值的平均值
+    int num = 4; // 4个值的平均值
+    if (m_concentrationCache.size() < num) {
         return 0;
     } else {
         int sum = 0;
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < num; ++i) {
             sum += m_concentrationCache.at(i);
         }
-        return sum / 5;
+        return sum / num;
     }
 }
 

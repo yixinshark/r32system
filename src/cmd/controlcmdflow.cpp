@@ -155,8 +155,8 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
     // 等待3分钟
     m_controlCmdFlow.append(initWaitSecs(3 * 60));
     // 加气体，并搅拌
-    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    m_controlCmdFlow.append(initOperateValve(false, true, false, true));
 
     // 等待到达最高浓度+10%;加气体快，等到值达到最高点后，停止关闭加气，等到标定时仍然很高，会导致第一个标定点失败。所以先升高再降低再标定
     m_controlCmdFlow.append(initWaitConcentration(m_calibrationValues.first() + (int)(m_calibrationValues.first() * 0.1)));
@@ -190,8 +190,8 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
 void ControlCmdFlow::initDetectCmdFlow1()
 {
     // 加气体，并搅拌
-    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
+    m_controlCmdFlow.append(initOperateValve(false, true,false, true));
 
     // 等待到达最高浓度+10%;加气体快，等到值达到最高点后，停止关闭加气，等到标定时仍然很高，会导致第一个标定点失败。所以先升高再降低再标定
     m_controlCmdFlow.append(initWaitConcentration(m_detectionValues.first() + (int)(m_detectionValues.first() * 0.1)));

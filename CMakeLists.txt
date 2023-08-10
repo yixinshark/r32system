@@ -6,10 +6,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-if (WIN32)
-    # 根据自己的地址，如果没配置系统环境
-    set(CMAKE_PREFIX_PATH D:/softeware/Qt/5.15.2/mingw81_64)
-endif ()
+#if (WIN32)
+#    # 根据自己的地址，如果没配置系统环境
+#    set(CMAKE_PREFIX_PATH D:/softeware/Qt/5.15.2/mingw81_64)
+#endif ()
 
 find_package(Qt5 COMPONENTS
         Core
