@@ -163,19 +163,28 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
     m_controlCmdFlow.append(initWaitConcentration(m_calibrationValues.first() + (int)(m_calibrationValues.first() * 0.1)));
     // 关闭气体进入,关闭所有电磁阀
     m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 等待10s
-    m_controlCmdFlow.append(initWaitSecs(10));
+    // 等待60s,让气体浓度稳定
+    m_controlCmdFlow.append(initWaitSecs(30));
+    // 关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+    // 静置30s
+    m_controlCmdFlow.append(initWaitSecs(30));
 
     for (int i = 0; i < m_calibrationValues.count(); i++) {
         int waitValue = m_calibrationValues.at(i) > 0 ? m_calibrationValues.at(i) + 100 : 0;
-        // 降低浓度，风扇没关在搅拌
+        // 降低浓度，打开风扇搅拌
+        m_controlCmdFlow.append(initOperateFan(true, true, true, true));
         m_controlCmdFlow.append(initOperateValve(false, false, true, true));
         // 等待浓度达到标定点
         m_controlCmdFlow.append(initWaitConcentration(waitValue));
         // 关闭气体进入,关闭所有电磁阀
         m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-        // 等待1分钟,风扇没关在搅拌
-        m_controlCmdFlow.append(initWaitSecs(1 * 60));
+        // 等待30s,风扇没关在搅拌
+        m_controlCmdFlow.append(initWaitSecs(30));
+        // 关闭风扇
+        m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+        // 静置10s
+        m_controlCmdFlow.append(initWaitSecs(10));
         // 开始标记浓度
         m_controlCmdFlow.append(initGasPointCalibration(i + 1, m_calibrationValues.at(i)));
     }
@@ -197,7 +206,7 @@ void ControlCmdFlow::initDetectCmdFlow1()
         // TODO 等待3分钟
     }
 
-    // 加气体，并搅拌
+    // 加气体，打开风扇搅拌
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
 
@@ -205,8 +214,12 @@ void ControlCmdFlow::initDetectCmdFlow1()
     m_controlCmdFlow.append(initWaitConcentration(m_detectionValues.first() + (int)(m_detectionValues.first() * 0.1)));
     // 关闭气体进入,关闭所有电磁阀
     m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-    // 等待10s
-    m_controlCmdFlow.append(initWaitSecs(10));
+    // 等待60s,让气体浓度稳定
+    m_controlCmdFlow.append(initWaitSecs(30));
+    // 关闭风扇
+    m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+    // 静置30s
+    m_controlCmdFlow.append(initWaitSecs(30));
 
     for (int i = 0; i < m_detectionValues.count(); i++) {
         int waitValue = m_detectionValues.at(i);
@@ -218,14 +231,19 @@ void ControlCmdFlow::initDetectCmdFlow1()
             waitValue += 100;
         }
 
-        // 降低浓度，风扇没关在搅拌
+        // 降低浓度，风扇搅拌
+        m_controlCmdFlow.append(initOperateFan(true, true, true, true));
         m_controlCmdFlow.append(initOperateValve(false, false, true, true));
         // 等待浓度达到检测点
         m_controlCmdFlow.append(initWaitConcentration(waitValue, 0.05));
         // 关闭气体进入,关闭所有电磁阀
         m_controlCmdFlow.append(initOperateValve(false, false, false, false));
-        // 等待1分钟，风扇没关在搅拌
-        m_controlCmdFlow.append(initWaitSecs(1 * 60));
+        // 等待30s,风扇没关在搅拌
+        m_controlCmdFlow.append(initWaitSecs(30));
+        // 关闭风扇
+        m_controlCmdFlow.append(initOperateFan(false, false, false, false));
+        // 静置10s
+        m_controlCmdFlow.append(initWaitSecs(10));
         // 开始获取浓度
         m_controlCmdFlow.append(initGetGasConcentration(m_detectionValues.at(i)));
     }

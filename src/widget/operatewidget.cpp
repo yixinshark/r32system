@@ -499,7 +499,7 @@ void OperateWidget::updateTableWidget()
         } else {
             m_tableWidget->setItem(row, 7, new QTableWidgetItem(info.calStatus));
         }
-        m_tableWidget->item(row, 7)->setBackground(info.calStatus == "标定成功" ? Qt::green : Qt::red);
+        m_tableWidget->item(row, 7)->setBackground(info.calStatus == "已标定" ? Qt::green : Qt::red);
 
         // 标定的零点阻值R0
         if (!info.R0.isEmpty()) {
@@ -666,7 +666,7 @@ void OperateWidget::syncDataToDB()
         toChannel = m_totalChannel + m_fromChannel - 1;
     }
 
-    bool ok = false;
+    bool ok = true;
     QString currentTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     for (int i = m_fromChannel; i <= toChannel; i++) {
         R32Info info = RecordData::instance()->getR32Info(i);
