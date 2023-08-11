@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QSerialPortInfo>
 #include <QListView>
+#include "serialportconfig.h"
 
 ConnectWidget::ConnectWidget(const QString &title, QWidget *parent)
     : QWidget(parent)
@@ -118,13 +119,40 @@ void ConnectWidget::initUI()
 
 bool ConnectWidget::connectSerialPort()
 {
-    bool ret = m_serialPortCom->openSerialPort(m_portComboBox->currentText(), m_serialPortParams.baudRate,
+    bool manualConnect = false;
+    if (m_serialPortParams.portName.isEmpty()) {
+        // 界面手动连接
+        m_serialPortParams.portName = m_portComboBox->currentText();
+        manualConnect = true;
+    } else {
+        // 一件链接
+        m_portComboBox->setCurrentText(m_serialPortParams.portName);
+    }
+
+    bool ret = m_serialPortCom->openSerialPort(m_serialPortParams.portName, m_serialPortParams.baudRate,
                                                m_serialPortParams.dataBits, m_serialPortParams.parity, m_serialPortParams.stopBits);
     QString msg = ret ? "连接成功" : "连接失败";
     msg += " serialPort:" + m_portComboBox->currentText() + " 波特率:" + QString::number(m_serialPortParams.baudRate) + " 检验和:" +
            m_serialPortParams.parity + " 数据位:" + QString::number(m_serialPortParams.dataBits) + " 停止位:" + m_serialPortParams.stopBits;
 
     Q_EMIT operatedMsg(msg);
+
+    if (ret && manualConnect) {
+        m_serialPortParams.portName = m_portComboBox->currentText();
+
+        QString beginGroup;
+        if (m_title == "R32传感器") {
+            beginGroup = "r32";
+        } else if (m_title == "分析仪") {
+            beginGroup = "r32Analyser";
+        } else if (m_title == "单片机") {
+            beginGroup = "mcu";
+        }
+
+        // 同步到配置文件
+        SerialPortConfig config;
+        config.saveSettings(beginGroup, m_serialPortParams);
+    }
 
     return ret;
 }
@@ -160,4 +188,11 @@ bool ConnectWidget::eventFilter(QObject *watched, QEvent *event) {
 bool ConnectWidget::isConnected() const
 {
     return m_serialPortCom->isSerialPortOpen();
+}
+
+void ConnectWidget::setSerialPortParams(const SerialPortParams &serialPortParams)
+{
+    m_serialPortParams = serialPortParams;
+    // 模拟connect按钮点击
+    m_connectBtn->click();
 }

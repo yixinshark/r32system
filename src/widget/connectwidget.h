@@ -27,6 +27,8 @@ public:
     SerialPortCom *serialPortCom() const { return m_serialPortCom; }
     bool isConnected() const;
 
+    void setSerialPortParams(const SerialPortParams &serialPortParams);
+
 signals:
     void operatedMsg(const QString &msg);
     void serialPortClosed();

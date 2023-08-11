@@ -27,6 +27,10 @@
 #include <QTableWidget>
 #include <QMessageBox>
 #include <QDebug>
+#include "serialportconfig.h"
+
+#include <QCoreApplication>
+#include <QFile>
 
 OperateWidget::OperateWidget(QWidget *parent)
     : QWidget(parent)
@@ -34,6 +38,7 @@ OperateWidget::OperateWidget(QWidget *parent)
     , m_r32AnaConnectWidget(new ConnectWidget("分析仪", this))
     , m_mcuConnectWidget(new ConnectWidget("单片机", this))
     , m_tsiLineEdit(new QLineEdit(this))
+    , m_serialPortConnectBtn(new QPushButton(tr("一键连接串口"), this))
     , m_startBtn(new QPushButton(tr("开始"), this))
     , m_optMsgLabel(new QTextEdit(this))
     , m_tableWidget(new QTableWidget(this))
@@ -85,6 +90,8 @@ OperateWidget::OperateWidget(QWidget *parent)
         // 提示执行完成
         QMessageBox::information(nullptr, tr("提示"), tr("任务执行完成,请确保数据保存!"), QMessageBox::Ok);
     });
+
+    connect(m_serialPortConnectBtn, &QPushButton::clicked, this, &OperateWidget::connectAllSerialPort);
 }
 
 OperateWidget::~OperateWidget()
@@ -141,6 +148,8 @@ void OperateWidget::initUI()
     mainLayout->addWidget(groupBox3);
     //mainLayout->addWidget(m_msgLabel);
     setLayout(mainLayout);
+
+    m_serialPortConnectBtn->setEnabled(checkCanConnectAllSerialPort());
 }
 
 void OperateWidget::initTableWidget()
@@ -248,7 +257,9 @@ QLayout *OperateWidget::initSettingUI()
     hLayout->addStretch(1);
     hLayout->addWidget(tsiLabel);
     hLayout->addWidget(m_tsiLineEdit);
-    hLayout->addStretch(2);
+    hLayout->addStretch(1);
+    hLayout->addWidget(m_serialPortConnectBtn);
+    hLayout->addStretch(1);
 
     return hLayout;
 }
@@ -681,4 +692,38 @@ void OperateWidget::syncDataToDB()
     } else {
         QMessageBox::warning(this, tr("提示"), tr("数据同步数据库失败!"));
     }
+}
+
+bool OperateWidget::checkCanConnectAllSerialPort()
+{
+    // 主要检查可执行程序所在目录是否有serial_config.ini，如果没有则创建
+    QString configPath = QCoreApplication::applicationDirPath() + "/serial_config.ini";
+    if (!QFile::exists(configPath)) {
+        QFile file(configPath);
+        if (file.open(QIODevice::ReadWrite)) {
+            file.close();
+        }
+
+        return false;
+    }
+
+    return true;
+}
+
+void OperateWidget::connectAllSerialPort()
+{
+    // 分别加载r32，r32Analyser,muc的配置，然后连接串口
+    SerialPortConfig config;
+    if (!config.isValid()) {
+        QMessageBox::warning(this, tr("警告"),
+                             tr("配置文件不存在或者无效，请先手动配置一次!"), QMessageBox::Ok);
+        return;
+    }
+
+    // r32
+    m_r32ConnectWidget->setSerialPortParams(config.loadSettings(QString("r32")));
+    // r32Analyser
+    m_r32AnaConnectWidget->setSerialPortParams(config.loadSettings(QString("r32Analyser")));
+    // mcu
+    m_mcuConnectWidget->setSerialPortParams(config.loadSettings(QString("mcu")));
 }

@@ -43,6 +43,8 @@ private:
     void updateTableWidget();
     // 数据同步到数据库
     void syncDataToDB();
+    bool checkCanConnectAllSerialPort();
+    void connectAllSerialPort();
 
 private:
     // r32传感器串口连接
@@ -53,6 +55,7 @@ private:
     ConnectWidget *m_mcuConnectWidget;
 
     QLineEdit *m_tsiLineEdit;
+    QPushButton *m_serialPortConnectBtn;
 
     QPushButton *m_startBtn;
     QTextEdit *m_optMsgLabel;
