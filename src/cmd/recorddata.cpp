@@ -66,7 +66,7 @@ void RecordData::setCurrentConcentration(int concentration)
 int RecordData::getCurrentConcentration() const
 {
     // m_concentrationCache缓存少于4个值，返回0，否则返回4个值的平均值
-    int num = 4; // 4个值的平均值
+    int num = 5; // 5个值的平均值
     if (m_concentrationCache.size() < num) {
         return 0;
     } else {
@@ -223,7 +223,7 @@ void RecordData::setDetectPoint0(int concentration)
         m_recordData[m_currentChanel].r32Ccr0 = concentration;
         //m_recordData[m_currentChanel].ccr0 = getCurrentConcentration();
         // 当前浓度值在0的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr0 >= 0 && m_recordData[m_currentChanel].ccr0 <= 50) {
+        if (m_recordData[m_currentChanel].r32Ccr0 >= 0 && m_recordData[m_currentChanel].r32Ccr0 <= 50) {
             m_recordData[m_currentChanel].ccr0Valid = true;
         }
         // 判定结果
@@ -244,7 +244,7 @@ void RecordData::setDetectPoint500(int concentration)
         m_recordData[m_currentChanel].r32Ccr500 = concentration;
         //m_recordData[m_currentChanel].ccr500 = getCurrentConcentration();
         // 当前浓度值在500的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr500 >= 475 && m_recordData[m_currentChanel].ccr500 <= 525) {
+        if (m_recordData[m_currentChanel].r32Ccr500 >= 475 && m_recordData[m_currentChanel].r32Ccr500 <= 525) {
             m_recordData[m_currentChanel].ccr500Valid = true;
         }
     } else {
@@ -259,7 +259,7 @@ void RecordData::setDetectPoint1000(int concentration)
         m_recordData[m_currentChanel].r32Ccr1000 = concentration;
         //m_recordData[m_currentChanel].ccr1000 = getCurrentConcentration();
         // 当前浓度值在1000的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr1000 >= 950 && m_recordData[m_currentChanel].ccr1000 <= 1050) {
+        if (m_recordData[m_currentChanel].r32Ccr1000 >= 950 && m_recordData[m_currentChanel].r32Ccr1000 <= 1050) {
             m_recordData[m_currentChanel].ccr1000Valid = true;
         }
     } else {
@@ -273,7 +273,7 @@ void RecordData::setDetectPoint3000(int concentration)
         m_recordData[m_currentChanel].r32Ccr3000 = concentration;
         //m_recordData[m_currentChanel].ccr3000 = getCurrentConcentration();
         // 当前浓度值在3000的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr3000 >= 2850 && m_recordData[m_currentChanel].ccr3000 <= 3150) {
+        if (m_recordData[m_currentChanel].r32Ccr3000 >= 2850 && m_recordData[m_currentChanel].r32Ccr3000 <= 3150) {
             m_recordData[m_currentChanel].ccr3000Valid = true;
         }
     } else {
@@ -287,7 +287,7 @@ void RecordData::setDetectPoint5000(int concentration)
         m_recordData[m_currentChanel].r32Ccr5000 = concentration;
         //m_recordData[m_currentChanel].ccr5000 = getCurrentConcentration();
         // 当前浓度值在5000的5%范围内，认为是有效值
-        if (m_recordData[m_currentChanel].ccr5000 >= 4750 && m_recordData[m_currentChanel].ccr5000 <= 5250) {
+        if (m_recordData[m_currentChanel].r32Ccr5000 >= 4750 && m_recordData[m_currentChanel].r32Ccr5000 <= 5250) {
             m_recordData[m_currentChanel].ccr5000Valid = true;
         }
     } else {

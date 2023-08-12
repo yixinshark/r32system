@@ -690,7 +690,7 @@ void OperateWidget::syncDataToDB()
         R32Info info = RecordData::instance()->getR32Info(i);
         info.dateTime = currentTime;
 
-        ok &= R32RecordValueDao::insert(info);
+        R32RecordValueDao::insert(info);
     }
 
     // 提示

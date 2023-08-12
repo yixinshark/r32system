@@ -39,7 +39,7 @@ struct R32Info {
     // 0浓度
     int r32Ccr0 = 0;
     int ccr0 = 0;
-    bool ccr0Valid = true;
+    bool ccr0Valid = false;
 
     bool valid= false; // 判定结果
     // QString而不是float便于存数据库

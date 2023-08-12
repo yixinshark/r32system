@@ -47,7 +47,7 @@ private:
     StatusWidget *m_cntStatusWidget;
     QComboBox *m_portComboBox;
     SerialPortCom *m_serialPortCom;
-
+    bool m_isManualDisconnect = false;
     QString m_title;
     SerialPortParams m_serialPortParams;
 };

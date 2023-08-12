@@ -109,6 +109,7 @@ void ConnectWidget::initUI()
         dialog.setPortName(m_portComboBox->currentText());
         if (dialog.exec() == QDialog::Accepted) {
             m_serialPortParams = dialog.serialPortParams();
+            m_isManualDisconnect = true;
         } else {
             qWarning() << "cancel serialPort param settings!";
         }
@@ -119,12 +120,7 @@ void ConnectWidget::initUI()
 
 bool ConnectWidget::connectSerialPort()
 {
-    bool manualConnect = false;
-    if (m_serialPortParams.portName.isEmpty()) {
-        // 界面手动连接
-        m_serialPortParams.portName = m_portComboBox->currentText();
-        manualConnect = true;
-    } else {
+    if (!m_isManualDisconnect) {
         // 一件链接
         m_portComboBox->setCurrentText(m_serialPortParams.portName);
     }
@@ -137,8 +133,8 @@ bool ConnectWidget::connectSerialPort()
 
     Q_EMIT operatedMsg(msg);
 
-    if (ret && manualConnect) {
-        m_serialPortParams.portName = m_portComboBox->currentText();
+    if (ret && m_isManualDisconnect) {
+        m_isManualDisconnect = false;
 
         QString beginGroup;
         if (m_title == "R32传感器") {

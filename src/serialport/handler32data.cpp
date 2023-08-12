@@ -651,10 +651,11 @@ void Handler32data::sendCmdData(const QByteArray &data)
         // 添加当前地址
         // 去掉最后一个字节
         sendData.remove(7, 1);
-        sendData[1] = m_address;
+        sendData[1] = (char)RecordData::instance()->getcurrentChanel();
         addCheckSum(sendData);
 
-        qInfo() << "r32 send data:" << sendData.toHex();
+        if (data.at(2) == 0x03)
+            qInfo() << "r32 send 03 data:" << sendData.toHex() << " m_address:" << (int)sendData[1];
         HandleDataBase::sendCmdData(sendData);
     }
 }
