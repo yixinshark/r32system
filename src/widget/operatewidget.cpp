@@ -430,14 +430,17 @@ void OperateWidget::updateTableWidget()
         toChannel = m_totalChannel + m_fromChannel - 1;
     }
 
+    int row = -1;
     for (int i = m_fromChannel; i <= toChannel; i++) {
         if (!recordData->hasChannel(i)) {
             continue;
         }
 
+        row++;
+
         // 更新表格
         R32Info info = recordData->getR32Info(i);
-        int row = i - m_fromChannel;
+        //int row = i - m_fromChannel;
         // 如果表格行不够，则添加
         if (row >= m_tableWidget->rowCount()) {
             m_tableWidget->setRowCount(row + 1);
@@ -680,6 +683,10 @@ void OperateWidget::syncDataToDB()
     bool ok = true;
     QString currentTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
     for (int i = m_fromChannel; i <= toChannel; i++) {
+        if (!RecordData::instance()->hasChannel(i)) {
+            continue;
+        }
+
         R32Info info = RecordData::instance()->getR32Info(i);
         info.dateTime = currentTime;
 

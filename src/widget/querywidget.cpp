@@ -21,7 +21,7 @@
 #include <QFileDialog>
 #include <QAxObject>
 
-const int recordsPerPage = 10; // Number of records to display per page
+const int recordsPerPage = 20; // Number of records to display per page
 
 const char * const SQL_R32TABLE = "R32Table";
 QueryWidget::QueryWidget(QWidget *parent)
