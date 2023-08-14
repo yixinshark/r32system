@@ -43,7 +43,6 @@ private:
     void updateTableWidget();
     // 数据同步到数据库
     void syncDataToDB();
-    bool checkCanConnectAllSerialPort();
     void connectAllSerialPort();
 
 private:

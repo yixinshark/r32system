@@ -4,6 +4,7 @@
 
 #include <QSettings>
 #include <QCoreApplication>
+#include <QFile>
 #include "serialportconfig.h"
 
 #if 0
@@ -75,10 +76,20 @@ SerialPortParams SerialPortConfig::loadSettings(const QString &beginGroup)
     return serialPortParams;
 }
 
-bool SerialPortConfig::isValid() const
-{
-    QString path = QCoreApplication::applicationDirPath() + "/serial_config.ini";
-    QSettings settings(path, QSettings::IniFormat);
+bool SerialPortConfig::isValid() const {
+    // 主要检查可执行程序所在目录是否有serial_config.ini，如果没有则创建
+    QString configPath = QCoreApplication::applicationDirPath() + "/serial_config.ini";
+    if (!QFile::exists(configPath)) {
+        QFile file(configPath);
+        if (file.open(QIODevice::ReadWrite)) {
+            file.close();
+        }
 
-    return settings.contains("/r32/PortName") && settings.contains("/r32Analyser/PortName") && settings.contains("/mcu/PortName");
+        return false;
+    }
+
+    QSettings settings(configPath, QSettings::IniFormat);
+
+    return settings.contains("/r32/PortName") && settings.contains("/r32Analyser/PortName") &&
+           settings.contains("/mcu/PortName");
 }

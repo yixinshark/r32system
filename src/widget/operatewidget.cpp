@@ -29,9 +29,6 @@
 #include <QDebug>
 #include "serialportconfig.h"
 
-#include <QCoreApplication>
-#include <QFile>
-
 OperateWidget::OperateWidget(QWidget *parent)
     : QWidget(parent)
     , m_r32ConnectWidget(new ConnectWidget("R32传感器", this))
@@ -148,8 +145,6 @@ void OperateWidget::initUI()
     mainLayout->addWidget(groupBox3);
     //mainLayout->addWidget(m_msgLabel);
     setLayout(mainLayout);
-
-    m_serialPortConnectBtn->setEnabled(checkCanConnectAllSerialPort());
 }
 
 void OperateWidget::initTableWidget()
@@ -699,22 +694,6 @@ void OperateWidget::syncDataToDB()
     } else {
         QMessageBox::warning(this, tr("提示"), tr("数据同步数据库失败!"));
     }
-}
-
-bool OperateWidget::checkCanConnectAllSerialPort()
-{
-    // 主要检查可执行程序所在目录是否有serial_config.ini，如果没有则创建
-    QString configPath = QCoreApplication::applicationDirPath() + "/serial_config.ini";
-    if (!QFile::exists(configPath)) {
-        QFile file(configPath);
-        if (file.open(QIODevice::ReadWrite)) {
-            file.close();
-        }
-
-        return false;
-    }
-
-    return true;
 }
 
 void OperateWidget::connectAllSerialPort()
