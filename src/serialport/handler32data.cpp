@@ -479,7 +479,7 @@ void Handler32data::addContent(char cmd, const QVariantMap &info, QByteArray &da
 
     data.append(SEND_HEADER);
     data.append(m_address == 0x00 ? (char)RecordData::instance()->getcurrentChanel() : m_address);
-    qInfo() << "address:" << (int)m_address << " set:" << data.toHex();
+    //qInfo() << "address:" << (int)m_address << " set:" << data.toHex();
     data.append(cmd);
     switch (cmd) {
         case CMD_01: {
@@ -642,20 +642,20 @@ void Handler32data::sendCmdData(const QByteArray &data)
 
     QByteArray sendData = data;
 
+    // 去掉最后一个字节
+    sendData.remove(7, 1);
+
     // 重載父類方法，添加地址
     if (data.at(1) == 0x00 && data.at(6) == 0x01) {
         // 还原地址设置内容
         sendData[6] = 0x00;
-        HandleDataBase::sendCmdData(sendData);
+        m_isSetAddress = true;
     } else {
         // 添加当前地址
-        // 去掉最后一个字节
-        sendData.remove(7, 1);
         sendData[1] = (char)RecordData::instance()->getcurrentChanel();
-        addCheckSum(sendData);
-
-        if (data.at(2) == 0x03)
-            qInfo() << "r32 send 03 data:" << sendData.toHex() << " m_address:" << (int)sendData[1];
-        HandleDataBase::sendCmdData(sendData);
     }
+
+    addCheckSum(sendData);
+    qInfo() << "----r32 send data:" << sendData.toHex() << " address:" << (int)sendData[1];
+    HandleDataBase::sendCmdData(sendData);
 }

@@ -177,6 +177,15 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
             waitValue += 300;
         }
 
+        int point = 0;
+        if (m_calibrationValues.at(i) == 5000) {
+            point = 2;
+        } else if (m_calibrationValues.at(i) == 1000) {
+            point = 1;
+        } else if (m_calibrationValues.at(i) == 0) {
+            point = 0;
+        }
+
         // 降低浓度，打开风扇搅拌
         m_controlCmdFlow.append(initOperateFan(true, true, true, true));
         m_controlCmdFlow.append(initOperateValve(false, false, true, true));
@@ -191,7 +200,7 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
         // 静置40s
         m_controlCmdFlow.append(initWaitSecs(40));
         // 开始标记浓度
-        m_controlCmdFlow.append(initGasPointCalibration(i + 1, m_calibrationValues.at(i)));
+        m_controlCmdFlow.append(initGasPointCalibration(point, m_calibrationValues.at(i)));
     }
 
     // 关闭R32分析仪获取数据
@@ -358,7 +367,6 @@ BaseCmd *ControlCmdFlow::initPowerOnDetect()
 
     // 设置地址
     auto *singleCmd = new SetAddressCmd();
-    singleCmd->setFromChannel(m_fromChannel);
     singleCmd->setSender(m_r32DataHandler);
     singleCmd->setCmdCode(CMD_01);
     compoundCmd->addCmd(singleCmd);

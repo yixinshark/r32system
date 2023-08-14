@@ -34,20 +34,18 @@ public:
     void recvCmdAckData(quint8 cmd) override;
 
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
-    void setFromChannel(int channel) { m_fromChannel = channel; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
-    QByteArray getSendData(int channel);
 
 private:
-    int m_fromChannel = 0;
-    int m_currentChannel = 0;
+    QByteArray getSendBaseData();
+
+private:
     bool m_executeSuccess = false;
     int m_sentCount = 0;
     int m_cmdCode = 0;
     QString m_errInfo;
 
     HandleDataBase *m_sender;
-    QByteArray m_sendData;
 };
 
 
