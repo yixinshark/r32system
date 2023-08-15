@@ -36,6 +36,7 @@ public:
     // 接收命令回执
     void recvCmdAckData(quint8 cmd) override;
 
+    void setR32Point(int point) { m_r32Point = point; }
     void setCalCcrPoint(int point) { m_point = point; }
     void setSender(HandleDataBase *sender) { m_sender = sender; }
     void setCmdCode(int cmdCode) { m_cmdCode = cmdCode; }
@@ -43,6 +44,7 @@ public:
 private:
     bool m_executeSuccess = false;
     int m_point = 0;
+    int m_r32Point = 0;
     int m_sentCount = 0;
     int m_cmdCode = 0;
     QString m_errInfo;

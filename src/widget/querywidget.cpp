@@ -153,6 +153,8 @@ void QueryWidget::handleExportButton() {
     QString endTime = m_endTimeEdit->text();
 
     exportToExcel(filename, startTime, endTime);
+    // 提示导出成功
+    QMessageBox::information(this, "导出数据", "导出数据完成!");
 }
 
 void QueryWidget::exportToExcel(const QString &filename, const QString &startTime, const QString &endTime)

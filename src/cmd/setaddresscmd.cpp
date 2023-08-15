@@ -102,7 +102,9 @@ QByteArray SetAddressCmd::getSendBaseData()
     data.append( (char)0x00);
     data.append(static_cast<char>(m_cmdCode));
 
-    data.append(static_cast<char>(RecordData::instance()->getcurrentChanel()));
+    // 传感器采用广播，设置一次地址，所有模块都设置了统一的地址
+    data.append(static_cast<char>(0x01));
+    //data.append(static_cast<char>(RecordData::instance()->getcurrentChanel()));
     data.append(static_cast<char>(0x00));
     data.append(static_cast<char>(0x00));
     data.append(static_cast<char>(0x00));

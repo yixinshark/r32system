@@ -93,6 +93,7 @@ void ControlCmdFlow::recvAck(char cmd, const QVariantMap &info)
 
 void ControlCmdFlow::initCalibrationCmdFlow()
 {
+#if 0
     // 轮询上电检测
     m_controlCmdFlow.append(initPowerOnDetect());
     // 等待3分钟
@@ -120,12 +121,12 @@ void ControlCmdFlow::initCalibrationCmdFlow()
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
     // 标定完成
     m_controlCmdFlow.append(initCalibrationOver());
-
-    // TODO 是否要打开箱体
+#endif
 }
 
 void ControlCmdFlow::initDetectCmdFlow()
 {
+#if 0
     // 加气体，并搅拌
     m_controlCmdFlow.append(initOperateValve(false, true,false, true));
     m_controlCmdFlow.append(initOperateFan(true, true, true, true));
@@ -147,6 +148,7 @@ void ControlCmdFlow::initDetectCmdFlow()
 
     // 关闭R32分析仪获取数据
     m_controlCmdFlow.append(initCloseR32AnaGetGasData());
+#endif
 }
 
 void ControlCmdFlow::initCalibrationCmdFlow1()
@@ -200,7 +202,7 @@ void ControlCmdFlow::initCalibrationCmdFlow1()
         // 静置40s
         m_controlCmdFlow.append(initWaitSecs(40));
         // 开始标记浓度
-        m_controlCmdFlow.append(initGasPointCalibration(point, m_calibrationValues.at(i)));
+        m_controlCmdFlow.append(initGasPointCalibration(i+1, point, m_calibrationValues.at(i)));
     }
 
     // 关闭R32分析仪获取数据
@@ -519,7 +521,7 @@ BaseCmd *ControlCmdFlow::initCloseFan()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
+BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int r32Point, int concentration)
 {
     auto *cmd = new CompoundCmd();
     cmd->setLoopCount(m_totalChannel);
@@ -533,7 +535,7 @@ BaseCmd *ControlCmdFlow::initGasPointCalibration(int point, int concentration)
     cmd->addCmd(channelCmd);
 
     // 标记浓度
-    auto *singleCmd = initMarkConcentration(point);
+    auto *singleCmd = initMarkConcentration(point, r32Point);
     cmd->addCmd(singleCmd);
 
     // 读取电阻值
@@ -553,12 +555,13 @@ BaseCmd *ControlCmdFlow::initCloseR32AnaGetGasData()
     return cmd;
 }
 
-BaseCmd *ControlCmdFlow::initMarkConcentration(int point)
+BaseCmd *ControlCmdFlow::initMarkConcentration(int point, int r32Point)
 {
     auto *singleCmd = new CalCcrCmd();
     singleCmd->setSender(m_r32DataHandler);
     singleCmd->setCmdCode(CMD_01);
     singleCmd->setCalCcrPoint(point);
+    singleCmd->setR32Point(r32Point);
 
     return singleCmd;
 }

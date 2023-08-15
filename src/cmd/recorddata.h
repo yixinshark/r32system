@@ -21,24 +21,24 @@ struct R32Info {
     bool point3Valid = false;
 
     // 5000浓度
-    int r32Ccr5000 = 0;
-    int ccr5000 = 0;
+    int r32Ccr5000 = -1;
+    int ccr5000 = -1;
     bool ccr5000Valid = false;
     // 3000浓度
-    int r32Ccr3000 = 0;
-    int ccr3000 = 0;
+    int r32Ccr3000 = -1;
+    int ccr3000 = -1;
     bool ccr3000Valid = false;
     // 1000浓度
-    int r32Ccr1000 = 0;
-    int ccr1000 = 0;
+    int r32Ccr1000 = -1;
+    int ccr1000 = -1;
     bool ccr1000Valid = false;
     // 500浓度
-    int r32Ccr500 = 0;
-    int ccr500 = 0;
+    int r32Ccr500 = -1;
+    int ccr500 = -1;
     bool ccr500Valid = false;
     // 0浓度
-    int r32Ccr0 = 0;
-    int ccr0 = 0;
+    int r32Ccr0 = -1;
+    int ccr0 = -1;
     bool ccr0Valid = false;
 
     bool valid= false; // 判定结果

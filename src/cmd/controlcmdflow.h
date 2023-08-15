@@ -72,12 +72,12 @@ private:
     // 关闭风扇
     BaseCmd *initCloseFan();
     // 读取传感器浓度
-    BaseCmd *initMarkConcentration(int point);
+    BaseCmd *initMarkConcentration(int point, int r32Point);
     // 读取电阻值
     BaseCmd *initReadResistance(int concentration);
 
     // 标定传感器浓度
-    BaseCmd *initGasPointCalibration(int point, int concentration);
+    BaseCmd *initGasPointCalibration(int point, int r32Point, int concentration);
     // 关闭分析仪获取数据
     BaseCmd *initCloseR32AnaGetGasData();
     // 标定完成

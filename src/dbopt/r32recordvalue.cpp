@@ -76,7 +76,7 @@ R32Info R32RecordValueDao::mapToR32(const QMap<QString, QVariant> &rowMap) {
 QMap<QString, QVariant> R32RecordValueDao::parmsValue(const R32Info &data) {
     QVariantMap info;
     info.insert("dateTime", data.dateTime);
-    info.insert("sensor_id", QString::number(data.channel, 16));
+    info.insert("sensor_id", QString::number(data.channel));
     info.insert("valid", data.valid ? "合格":"不合格");
     info.insert("on_off", data.on ? "ON":"OFF");
     info.insert("soft_version", data.softVersion);

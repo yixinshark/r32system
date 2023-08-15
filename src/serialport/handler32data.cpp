@@ -161,10 +161,10 @@ bool Handler32data::readOperateResult(quint8 cmd, const QByteArray &data, QVaria
                 value.insert(ACK_RESULT, "未标定");
                 break;
             case 1:
-                value.insert(ACK_ERROR, "已标定");
+                value.insert(ACK_RESULT, "已标定");
                 break;
             default:
-                value.insert(ACK_ERROR, "未知状态");
+                value.insert(ACK_RESULT, "未知状态");
                 break;
         }
         RecordData::instance()->setCalibrationStatus(value.value(ACK_RESULT).toString());
@@ -642,7 +642,7 @@ void Handler32data::sendCmdData(const QByteArray &data)
 
     QByteArray sendData = data;
 
-    // 去掉最后一个字节
+    // 去掉最后一个字节校验位，修改地址后统一加上
     sendData.remove(7, 1);
 
     // 重載父類方法，添加地址
@@ -651,8 +651,8 @@ void Handler32data::sendCmdData(const QByteArray &data)
         sendData[6] = 0x00;
         m_isSetAddress = true;
     } else {
-        // 添加当前地址
-        sendData[1] = (char)RecordData::instance()->getcurrentChanel();
+        // 添加当前地址(广播设置了统一地址0x01)
+        sendData[1] = 0x01;//(char)RecordData::instance()->getcurrentChanel();
     }
 
     addCheckSum(sendData);

@@ -582,14 +582,14 @@ void OperateWidget::updateTableWidget()
         }
 
         // 5000浓度
-        if (info.ccr5000 > 0) {
+        if (info.ccr5000 >= 0) {
             if (m_tableWidget->item(row, 16)) {
                 m_tableWidget->item(row, 16)->setText(QString::number(info.ccr5000));
             } else {
                 m_tableWidget->setItem(row, 16, new QTableWidgetItem(QString::number(info.ccr5000)));
             }
         }
-        if (info.r32Ccr5000 > 0) {
+        if (info.r32Ccr5000 >= 0) {
             if (m_tableWidget->item(row, 17)) {
                 m_tableWidget->item(row, 17)->setText(QString::number(info.r32Ccr5000));
             } else {
@@ -599,14 +599,14 @@ void OperateWidget::updateTableWidget()
         }
 
         // 3000浓度
-        if (info.ccr3000 > 0) {
+        if (info.ccr3000 >= 0) {
             if (m_tableWidget->item(row, 18)) {
                 m_tableWidget->item(row, 18)->setText(QString::number(info.ccr3000));
             } else {
                 m_tableWidget->setItem(row, 18, new QTableWidgetItem(QString::number(info.ccr3000)));
             }
         }
-        if (info.r32Ccr3000 > 0) {
+        if (info.r32Ccr3000 >= 0) {
             if (m_tableWidget->item(row, 19)) {
                 m_tableWidget->item(row, 19)->setText(QString::number(info.r32Ccr3000));
             } else {
@@ -616,14 +616,14 @@ void OperateWidget::updateTableWidget()
         }
 
         // 1000浓度
-        if (info.ccr1000 > 0) {
+        if (info.ccr1000 >= 0) {
             if (m_tableWidget->item(row, 20)) {
                 m_tableWidget->item(row, 20)->setText(QString::number(info.ccr1000));
             } else {
                 m_tableWidget->setItem(row, 20, new QTableWidgetItem(QString::number(info.ccr1000)));
             }
         }
-        if (info.r32Ccr1000 > 0) {
+        if (info.r32Ccr1000 >= 0) {
             if (m_tableWidget->item(row, 21)) {
                 m_tableWidget->item(row, 21)->setText(QString::number(info.r32Ccr1000));
             } else {
@@ -633,14 +633,14 @@ void OperateWidget::updateTableWidget()
         }
 
         // 500浓度
-        if (info.ccr500 > 0) {
+        if (info.ccr500 >= 0) {
             if (m_tableWidget->item(row, 22)) {
                 m_tableWidget->item(row, 22)->setText(QString::number(info.ccr500));
             } else {
                 m_tableWidget->setItem(row, 22, new QTableWidgetItem(QString::number(info.ccr500)));
             }
         }
-        if (info.r32Ccr500 > 0) {
+        if (info.r32Ccr500 >= 0) {
             if (m_tableWidget->item(row, 23)) {
                 m_tableWidget->item(row, 23)->setText(QString::number(info.r32Ccr500));
             } else {
@@ -650,14 +650,14 @@ void OperateWidget::updateTableWidget()
         }
 
         // 0浓度
-        if (info.ccr0 > 0) {
+        if (info.ccr0 >= 0) {
             if (m_tableWidget->item(row, 24)) {
                 m_tableWidget->item(row, 24)->setText(QString::number(info.ccr0));
             } else {
                 m_tableWidget->setItem(row, 24, new QTableWidgetItem(QString::number(info.ccr0)));
             }
         }
-        if (info.r32Ccr0 > 0) {
+        if (info.r32Ccr0 >= 0) {
             if (m_tableWidget->item(row, 25)) {
                 m_tableWidget->item(row, 25)->setText(QString::number(info.r32Ccr0));
             } else {

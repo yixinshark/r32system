@@ -43,7 +43,7 @@ void CalCcrCmd::execute()
     QByteArray data;
 
     QVariantMap info;
-    info.insert(SEND_CAL_POINT, m_point);
+    info.insert(SEND_CAL_POINT, m_r32Point);
     data = m_sender->getSendData((char)m_cmdCode, info);
     m_sender->sendCmdData(data);
 
