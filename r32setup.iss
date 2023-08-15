@@ -5,7 +5,7 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "hgtech, Inc."
 #define MyAppURL "https://www.hgxingaoli.com/"
-#define MyAppExeName "r32.exe"
+#define MyAppExeName "r32system.exe"
 #define MyAppAssocName MyAppName + " File"
 #define MyAppAssocExt ".myp"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
@@ -32,7 +32,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 //Source: "favicon.ico"; DestDir: "{app}"; IconFilename: "favicon.ico"
-Source: "exe\r32.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"
+Source: "exe\r32system.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"
 Source: "exe\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]

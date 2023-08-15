@@ -63,8 +63,8 @@ target_link_libraries(r32system
         )
 
 # 在Windows上隐藏控制台窗口
-#if(WIN32)
-#    set_target_properties(${PROJECT_NAME} PROPERTIES
-#            WIN32_EXECUTABLE YES
-#            )
-#endif()
+if(WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            WIN32_EXECUTABLE YES
+            )
+endif()
